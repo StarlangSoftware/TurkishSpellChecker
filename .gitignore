@@ -53,3 +53,6 @@ nb-configuration.xml
 release.properties
 pom.xml.releaseBackup
 pom.xml.tag
+out/artifacts/SpellChecker_jar/SpellChecker.jar
+out/production/SpellChecker/libs/MorphologicalAnalysis.jar
+out/production/SpellChecker/libs/NGram.jar
