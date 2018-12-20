@@ -73,8 +73,7 @@ SpellChecker
 ============
 + [Maven Usage](#maven-usage)
 + [Creating SpellChecker](#creating-spellchecker)
-+ [Training MorphologicalDisambiguator](#training-morphologicaldisambiguator)
-+ [Sentence Disambiguation](#sentence-disambiguation)
++ [Spell Correction](#spell-correction)
 
 
 ### Maven Usage
