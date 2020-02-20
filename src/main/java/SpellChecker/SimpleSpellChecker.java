@@ -29,6 +29,10 @@ public class SimpleSpellChecker implements SpellChecker {
         String s = TurkishLanguage.LOWERCASE_LETTERS;
         ArrayList<String> candidates = new ArrayList<String>();
         for (int i = 0; i < word.length(); i++) {
+            if (i < word.length() - 1){
+                String swapped = word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2);
+                candidates.add(swapped);
+            }
             String deleted = word.substring(0, i) + word.substring(i + 1);
             candidates.add(deleted);
             for (int j = 0; j < s.length(); j++) {
