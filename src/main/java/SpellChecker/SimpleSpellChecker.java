@@ -33,15 +33,17 @@ public class SimpleSpellChecker implements SpellChecker {
                 String swapped = word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2);
                 candidates.add(swapped);
             }
-            String deleted = word.substring(0, i) + word.substring(i + 1);
-            candidates.add(deleted);
-            for (int j = 0; j < s.length(); j++) {
-                String replaced = word.substring(0, i) + s.charAt(j) + word.substring(i + 1);
-                candidates.add(replaced);
-            }
-            for (int j = 0; j < s.length(); j++) {
-                String added = word.substring(0, i) + s.charAt(j) + word.substring(i);
-                candidates.add(added);
+            if (TurkishLanguage.LETTERS.contains("" + word.charAt(i))){
+                String deleted = word.substring(0, i) + word.substring(i + 1);
+                candidates.add(deleted);
+                for (int j = 0; j < s.length(); j++) {
+                    String replaced = word.substring(0, i) + s.charAt(j) + word.substring(i + 1);
+                    candidates.add(replaced);
+                }
+                for (int j = 0; j < s.length(); j++) {
+                    String added = word.substring(0, i) + s.charAt(j) + word.substring(i);
+                    candidates.add(added);
+                }
             }
         }
         return candidates;
