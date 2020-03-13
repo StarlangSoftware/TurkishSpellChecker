@@ -80,7 +80,7 @@ Use below line to generate jar file:
 
 ------------------------------------------------
 
-SpellChecker
+Detailed Description
 ============
 + [Creating SpellChecker](#creating-spellchecker)
 + [Spell Correction](#spell-correction)
@@ -135,5 +135,3 @@ Spell correction can be done as follows:
 Output:
 
     Doktor ilaç yazdı
-
-        
