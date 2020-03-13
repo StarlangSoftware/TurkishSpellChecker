@@ -70,23 +70,20 @@ Use below line to generate jar file:
 
      mvn install
 
-
-------------------------------------------------
-
-SpellChecker
-============
-+ [Maven Usage](#maven-usage)
-+ [Creating SpellChecker](#creating-spellchecker)
-+ [Spell Correction](#spell-correction)
-
-
-### Maven Usage
+## Maven Usage
 
 	<dependency>
   	<groupId>NlpToolkit</groupId>
   	<artifactId>SpellChecker</artifactId>
   	<version>1.0.7</version>
 	</dependency>
+
+------------------------------------------------
+
+SpellChecker
+============
++ [Creating SpellChecker](#creating-spellchecker)
++ [Spell Correction](#spell-correction)
 
 ## Creating SpellChecker
 
@@ -118,14 +115,9 @@ SpellChecker finds spelling errors and corrects them in Turkish. There are two t
         *There are many smoothing methods available. For other smoothing methods, check [here](https://github.com/olcaytaner/NGram).*       
         * Loading from an existing model:
      
-                try {
-                    FileInputStream inFile = new FileInputStream("ngram.model");  
-                    ObjectInputStream inObject = new ObjectInputStream(inFile);
-                    NGram ngram = (NGram<Word>) inObject.readObject();
-                }catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-         *For further details, please check [here](https://github.com/olcaytaner/NGram).*        
+                NGram ngram = NGram("ngram.txt");
+
+	*For further details, please check [here](https://github.com/olcaytaner/NGram).*        
             
     * Afterwards, `NGramSpellChecker` can be created as below:
         
