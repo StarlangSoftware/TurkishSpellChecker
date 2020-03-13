@@ -115,7 +115,7 @@ SpellChecker finds spelling errors and corrects them in Turkish. There are two t
         *There are many smoothing methods available. For other smoothing methods, check [here](https://github.com/olcaytaner/NGram).*       
         * Loading from an existing model:
      
-                NGram ngram = NGram("ngram.txt");
+                NGram ngram = new NGram("ngram.txt");
 
 	*For further details, please check [here](https://github.com/olcaytaner/NGram).*        
             
