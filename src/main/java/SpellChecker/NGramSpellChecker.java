@@ -9,7 +9,7 @@ import Ngram.NGram;
 import java.util.ArrayList;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
-    private NGram nGram;
+    private NGram<String> nGram;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
@@ -19,7 +19,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram {@link NGram} type input.
      */
-    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram nGram) {
+    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
         super(fsm);
         this.nGram = nGram;
     }
@@ -53,16 +53,16 @@ public class NGramSpellChecker extends SimpleSpellChecker {
             fsmParses = fsm.morphologicalAnalysis(word.getName());
             if (fsmParses.size() == 0) {
                 candidates = candidateList(word);
-                bestCandidate = null;
-                bestRoot = null;
+                bestCandidate = word.getName();
+                bestRoot = word;
                 bestProbability = 0;
                 for (String candidate : candidates) {
                     fsmParses = fsm.morphologicalAnalysis(candidate);
                     root = fsmParses.getFsmParse(0).getWord();
                     if (previousRoot != null) {
-                        probability = nGram.getProbability(previousRoot, root);
+                        probability = nGram.getProbability(previousRoot.getName(), root.getName());
                     } else {
-                        probability = nGram.getProbability(root);
+                        probability = nGram.getProbability(root.getName());
                     }
                     if (probability > bestProbability) {
                         bestCandidate = candidate;
