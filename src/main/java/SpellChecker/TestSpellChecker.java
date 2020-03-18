@@ -15,7 +15,7 @@ public class TestSpellChecker {
     public static void main(String[] args){
         FsmMorphologicalAnalyzer fsm;
         fsm = new FsmMorphologicalAnalyzer();
-        Sentence s1 = new Sentence("baç-fiil .");
+        Sentence s1 = new Sentence("yagmurluk .");
         System.out.println(s1);
         Sentence s2 = spellCheck(s1, fsm);
         System.out.println(s2);
