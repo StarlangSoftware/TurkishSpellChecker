@@ -43,7 +43,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     public Sentence spellCheck(Sentence sentence) {
         Word word, bestRoot;
         Word previousRoot = null, root;
-        String bestCandidate, correctedCandidate;
+        String bestCandidate;
         FsmParseList fsmParses;
         double probability, bestProbability;
         ArrayList<String> candidates;
@@ -57,11 +57,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 bestRoot = word;
                 bestProbability = 0;
                 for (String candidate : candidates) {
-                    correctedCandidate = fsm.getDictionary().getCorrectForm(candidate);
-                    if (correctedCandidate == null){
-                        correctedCandidate = candidate;
-                    }
-                    fsmParses = fsm.morphologicalAnalysis(correctedCandidate);
+                    fsmParses = fsm.morphologicalAnalysis(candidate);
                     root = fsmParses.getFsmParse(0).getWord();
                     if (previousRoot != null) {
                         probability = nGram.getProbability(previousRoot.getName(), root.getName());
@@ -69,7 +65,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                         probability = nGram.getProbability(root.getName());
                     }
                     if (probability > bestProbability) {
-                        bestCandidate = correctedCandidate;
+                        bestCandidate = candidate;
                         bestRoot = root;
                         bestProbability = probability;
                     }

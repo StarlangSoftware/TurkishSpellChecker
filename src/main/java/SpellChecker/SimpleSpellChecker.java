@@ -64,8 +64,13 @@ public class SimpleSpellChecker implements SpellChecker {
         for (int i = 0; i < candidates.size(); i++) {
             FsmParseList fsmParseList = fsm.morphologicalAnalysis(candidates.get(i));
             if (fsmParseList.size() == 0) {
-                candidates.remove(i);
-                i--;
+                String newCandidate = fsm.getDictionary().getCorrectForm(candidates.get(i));
+                if (newCandidate != null){
+                    candidates.set(i, newCandidate);
+                } else {
+                    candidates.remove(i);
+                    i--;
+                }
             }
         }
         return candidates;
