@@ -6,7 +6,7 @@
 
     <groupId>NlpToolkit</groupId>
     <artifactId>SpellChecker</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>NlpToolkit</groupId>
             <artifactId>MorphologicalAnalysis</artifactId>
-            <version>1.0.13</version>
+            <version>1.0.14</version>
         </dependency>
         <dependency>
             <groupId>NlpToolkit</groupId>
