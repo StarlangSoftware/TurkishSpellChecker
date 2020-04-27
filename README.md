@@ -4,8 +4,9 @@ This tool is a spelling checker for Modern Turkish. It detects spelling errors a
 
 For Developers
 ============
-You can also see either [Python](https://github.com/olcaytaner/TurkishSpellChecker-Py) 
-or [C++](https://github.com/olcaytaner/TurkishSpellChecker-CPP) repository.
+
+You can also see [Python](https://github.com/starlangsoftware/TurkishSpellChecker-Py), [C++](https://github.com/starlangsoftware/TurkishSpellChecker-CPP), or [C#](https://github.com/starlangsoftware/TurkishSpellChecker-CS) repository.
+
 ## Requirements
 
 * [Java Development Kit 8 or higher](#java), Open JDK or Oracle JDK
@@ -72,11 +73,11 @@ Use below line to generate jar file:
 
 ## Maven Usage
 
-	<dependency>
-  	<groupId>NlpToolkit</groupId>
-  	<artifactId>SpellChecker</artifactId>
-  	<version>1.0.7</version>
-	</dependency>
+        <dependency>
+            <groupId>io.github.starlangsoftware</groupId>
+            <artifactId>SpellChecker</artifactId>
+            <version>1.0.14</version>
+        </dependency>
 
 ------------------------------------------------
 
