@@ -18,7 +18,7 @@ public class TestSpellChecker {
         FsmMorphologicalAnalyzer fsm;
         fsm = new FsmMorphologicalAnalyzer();
         SpellChecker s = new SimpleSpellChecker(fsm);
-        Sentence s1 = new Sentence("yagmurlik .");
+        Sentence s1 = new Sentence("cekwt .");
         System.out.println(s1);
         Sentence s2 = s.spellCheck(s1);
         System.out.println(s2);

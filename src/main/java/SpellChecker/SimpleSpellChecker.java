@@ -33,7 +33,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 String swapped = word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2);
                 candidates.add(swapped);
             }
-            if (TurkishLanguage.LETTERS.contains("" + word.charAt(i))){
+            if (TurkishLanguage.LETTERS.contains("" + word.charAt(i)) || "wxq".contains("" + word.charAt(i))){
                 String deleted = word.substring(0, i) + word.substring(i + 1);
                 candidates.add(deleted);
                 for (int j = 0; j < s.length(); j++) {
