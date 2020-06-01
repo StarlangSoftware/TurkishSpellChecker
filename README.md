@@ -1,7 +1,3 @@
-# SpellChecker
-
-This tool is a spelling checker for Modern Turkish. It detects spelling errors and corrects them appropriately, through its list of misspellings and matching to the Turkish dictionary.
-
 For Developers
 ============
 
@@ -53,12 +49,6 @@ Steps for opening the cloned project:
 * Select open as project option
 * Couple of seconds, dependencies with Maven will be downloaded. 
 
-<!--- See the snapshot of the project at the beginning:
-
-// put the link of ss
-
-![Main IDE page](https://github.com/master/dev/site/images/zemberek-ide-main.png))
---->
 ## Compile
 
 **From IDE**
@@ -78,61 +68,3 @@ Use below line to generate jar file:
             <artifactId>SpellChecker</artifactId>
             <version>1.0.14</version>
         </dependency>
-
-------------------------------------------------
-
-Detailed Description
-============
-+ [Creating SpellChecker](#creating-spellchecker)
-+ [Spell Correction](#spell-correction)
-
-## Creating SpellChecker
-
-SpellChecker finds spelling errors and corrects them in Turkish. There are two types of spell checker available:
-
-* `SimpleSpellChecker`
-    
-    * To instantiate this, a `FsmMorphologicalAnalyzer` is needed. 
-        
-            FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
-            SpellChecker spellChecker = new SimpleSpellChecker(fsm);   
-     
-* `NGramSpellChecker`,
-    
-    * To create an instance of this, both a `FsmMorphologicalAnalyzer` and a `NGram` is required. 
-    
-    * `FsmMorphologicalAnalyzer` can be instantiated as follows:
-        
-            FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
-    
-    * `NGram` can be either trained from scratch or loaded from an existing model.
-        
-        * Training from scratch:
-                
-                Corpus corpus = new Corpus("corpus.txt"); 
-                NGram ngram = new NGram(corpus.getAllWordsAsArrayList(), 1);
-                ngram.calculateNGramProbabilities(new LaplaceSmoothing());
-                
-        *There are many smoothing methods available. For other smoothing methods, check [here](https://github.com/olcaytaner/NGram).*       
-        * Loading from an existing model:
-     
-                NGram ngram = new NGram("ngram.txt");
-
-	*For further details, please check [here](https://github.com/olcaytaner/NGram).*        
-            
-    * Afterwards, `NGramSpellChecker` can be created as below:
-        
-            SpellChecker spellChecker = new NGramSpellChecker(fsm, ngram);
-     
-
-## Spell Correction
-
-Spell correction can be done as follows:
-
-    Sentence sentence = new Sentence("Dıktor olaç yazdı");
-    Sentence corrected = spellChecker.spellCheck(sentence);
-    System.out.println(corrected);
-    
-Output:
-
-    Doktor ilaç yazdı
