@@ -58,7 +58,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 bestProbability = 0;
                 for (String candidate : candidates) {
                     fsmParses = fsm.morphologicalAnalysis(candidate);
-                    root = fsmParses.getFsmParse(0).getWord();
+                    root = fsmParses.getParseWithLongestRootWord().getWord();
                     if (previousRoot != null) {
                         probability = nGram.getProbability(previousRoot.getName(), root.getName());
                     } else {
