@@ -40,4 +40,17 @@ public class NGramSpellCheckerTest {
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
         }
     }
+
+    @Test
+    public void testSpellCheck2() {
+        FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
+        NGram<String> nGram = new NGram<String>("ngram.txt");
+        nGram.calculateNGramProbabilities(new NoSmoothing<>());
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram);
+        assertEquals("kedi köpek", nGramSpellChecker.spellCheck(new Sentence("krdi köpek")).toString());
+        assertEquals("minibüs durağı", nGramSpellChecker.spellCheck(new Sentence("minibü durağı")).toString());
+        assertEquals("noter belgesi", nGramSpellChecker.spellCheck(new Sentence("nter belgesi")).toString());
+        assertEquals("ev telefonu", nGramSpellChecker.spellCheck(new Sentence("rv telefonu")).toString());
+        assertEquals("kitap okudum", nGramSpellChecker.spellCheck(new Sentence("krtap okudum")).toString());
+    }
 }

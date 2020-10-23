@@ -35,7 +35,9 @@ public class SimpleSpellChecker implements SpellChecker {
             }
             if (TurkishLanguage.LETTERS.contains("" + word.charAt(i)) || "wxq".contains("" + word.charAt(i))){
                 String deleted = word.substring(0, i) + word.substring(i + 1);
-                candidates.add(deleted);
+                if (!deleted.matches("\\d+")){
+                    candidates.add(deleted);
+                }
                 for (int j = 0; j < s.length(); j++) {
                     String replaced = word.substring(0, i) + s.charAt(j) + word.substring(i + 1);
                     candidates.add(replaced);
