@@ -21,17 +21,25 @@ public class NGramSpellCheckerTest {
                 new Sentence("her maskenin ciltte kalma süresi farklıdır"),
                 new Sentence("yılın son ayında 10 gazeteci gözaltına alındı"),
                 new Sentence("iki pilotun kullandığı uçakta bir hostes görev alıyor"),
-                new Sentence("son derece kısıtlı kelimeler çerçevesinde kendilerini uzun cümlelerle ifade edebiliyorlar")};
-        Sentence[] modified = {new Sentence("demokratik cumhüriyet en kımetli varlıgımızdır"),
+                new Sentence("son derece kısıtlı kelimeler çerçevesinde kendilerini uzun cümlelerle ifade edebiliyorlar"),
+                new Sentence("kedi köpek"),
+                new Sentence("minibüs durağı"),
+                new Sentence("noter belgesi"),
+                new Sentence("")};
+        Sentence[] modified = {new Sentence("demokratik cumhüriyet rn kımetli varlıgımızdır"),
                 new Sentence("bu tblodaki değerlğr zedelenmeyecüktir"),
-                new Sentence("milliyet'in geeneksel yılın spoşcusu ankşti 43. yeşını doldürdu"),
-                new Sentence("demokrasinin icşdı bu ayrmıı bulandürdı"),
-                new Sentence("dışişleri mütseşarı Öymen'in 1997'nin ilk aylğrında Bağdat'a gitmesi öngşrülüyor"),
-                new Sentence("büyüdü , palazandı , devltei ele geçridi"),
-                new Sentence("her makenin cültte kalma sürdsi farlkıdır"),
+                new Sentence("milliyet'in geeneksel yılin spoşcusu ankşti 43. yeşını doldürdu"),
+                new Sentence("demokrasinin icşdı buf ayrmıı bulandürdı"),
+                new Sentence("dışişleri mütseşarı Öymen'in 1997'nin iljk aylğrında Bağdat'a gitmesi öngşrülüyor"),
+                new Sentence("büyüdü , palazandı , devltei eöe geçridi"),
+                new Sentence("her makenin cültte aklma sürdsi farlkıdır"),
                 new Sentence("yılın sno ayında 10 gazteci gözlatına alündı"),
                 new Sentence("iki piotun kulçandığı uçkata üir hotes görçv alyıor"),
-                new Sentence("son deece kısütlı keilmeler çeçevesinde kendülerini uzuü cümllerle ifüde edbeiliyorlar")};
+                new Sentence("son deece kısütlı keilmeler çeçevesinde kendülerini uzuü cümllerle ifüde edbeiliyorlar"),
+                new Sentence("krdi köpek"),
+                new Sentence("minibü durağı"),
+                new Sentence("ntoer belgesi"),
+                new Sentence("")};
         FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
         NGram<String> nGram = new NGram<String>("ngram.txt");
         nGram.calculateNGramProbabilities(new NoSmoothing<>());
@@ -41,16 +49,4 @@ public class NGramSpellCheckerTest {
         }
     }
 
-    @Test
-    public void testSpellCheck2() {
-        FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
-        NGram<String> nGram = new NGram<String>("ngram.txt");
-        nGram.calculateNGramProbabilities(new NoSmoothing<>());
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram);
-        assertEquals("kedi köpek", nGramSpellChecker.spellCheck(new Sentence("krdi köpek")).toString());
-        assertEquals("minibüs durağı", nGramSpellChecker.spellCheck(new Sentence("minibü durağı")).toString());
-        assertEquals("noter belgesi", nGramSpellChecker.spellCheck(new Sentence("nter belgesi")).toString());
-        assertEquals("ev telefonu", nGramSpellChecker.spellCheck(new Sentence("rv telefonu")).toString());
-        assertEquals("kitap okudum", nGramSpellChecker.spellCheck(new Sentence("krtap okudum")).toString());
-    }
 }
