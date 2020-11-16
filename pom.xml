@@ -6,7 +6,7 @@
 
     <groupId>io.github.starlangsoftware</groupId>
     <artifactId>SpellChecker</artifactId>
-    <version>1.0.18</version>
+    <version>1.0.19</version>
     <packaging>jar</packaging>
 
     <name>NlpToolkit.SpellChecker</name>
@@ -55,17 +55,17 @@
         <dependency>
             <groupId>io.github.starlangsoftware</groupId>
             <artifactId>Dictionary</artifactId>
-            <version>1.0.16</version>
+            <version>1.0.18</version>
         </dependency>
         <dependency>
             <groupId>io.github.starlangsoftware</groupId>
             <artifactId>MorphologicalAnalysis</artifactId>
-            <version>1.0.17</version>
+            <version>1.0.26</version>
         </dependency>
         <dependency>
             <groupId>io.github.starlangsoftware</groupId>
             <artifactId>NGram</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.8</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

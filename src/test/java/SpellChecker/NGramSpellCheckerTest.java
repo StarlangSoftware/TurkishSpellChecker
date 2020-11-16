@@ -30,7 +30,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("bu tblodaki değerlğr zedelenmeyecüktir"),
                 new Sentence("milliyet'in geeneksel yılin spoşcusu ankşti 43. yeşını doldürdu"),
                 new Sentence("demokrasinin icşdı buf ayrmıı bulandürdı"),
-                new Sentence("dışişleri mütseşarı Öymen'in 1997'nin iljk aylğrında Bağdat'a gitmesi öngşrülüyor"),
+                new Sentence("dışişleri mütseşarı Öymen'in 1997'nin iljk aylğrında Bağdat'a gitmesi öngörülüyor"),
                 new Sentence("büyüdü , palazandı , devltei eöe geçridi"),
                 new Sentence("her makenin cültte aklma sürdsi farlkıdır"),
                 new Sentence("yılın sno ayında 10 gazteci gözlatına alündı"),

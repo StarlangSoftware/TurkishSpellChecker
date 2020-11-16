@@ -146,7 +146,6 @@ gidemiyeceğimizi gidemeyeceğimizi
 gitapseverler kitapseverler
 giyattakinin fiyattakinin
 giyinebileceığini giyinebileceğini
-gleecek gelecek
 görüyormusunuz görüyormuşsunuz
 gösöterdiler gösterdiler
 gösterenlar gösterenler
@@ -294,7 +293,6 @@ milyardeler milyarderler
 milyena milyona
 milyolarca milyonlarca
 minço miço
-minimamda minimumda
 modaeveleri modaevileri
 mozayiği mozaiği
 muakkak muhakkak
@@ -333,11 +331,8 @@ müttefiği müttefiki
 müzakare müzakere
 nefatif negatif
 nemasınıda nemasında
-neylan ceylan
 ngoc göç
-nitekliklerinden niteliklerinden
 nısabla nişanla
-nüskeden nükseden
 nyeter yeter
 ofsaylt ofsayt
 ögretmeniyle öğretmeniyle
@@ -455,7 +450,6 @@ sptadıklarını saptadıklarını
 ssukunluğunu suskunluğunu
 startejileri stratejileri
 stdyosunda stüdyosunda
-subjektif sübjektif
 subvanse sübvanse
 suiitimalle suistimalle
 suikasttaki suikastteki
@@ -476,7 +470,6 @@ telegraf telgraf
 televziyonda televizyonda
 terorizm terörizm
 terorizmi terörizmi
-tesadüfiydi tesadüfeydi
 tesadütür tesadüftür
 thabo tablo
 ticeret ticaret
@@ -490,7 +483,6 @@ tplantısında toplantısında
 trikatlar tarikatlar
 tsyd teyit
 tufah tufan
-ültra ultra
 uluvi ulvi
 umniyet emniyet
 ürtilen üretilen
@@ -498,7 +490,6 @@ umniyet emniyet
 usulsuzlük usulsüzlük
 üvertürlerini uvertürlerini
 uyanıker uyanıver
-uygalamaya uygulamaya
 uygalığın uygarlığın
 uzaklatıktan uzaklaştıktan
 variasyonlarıyla varyasyonlarıyla
