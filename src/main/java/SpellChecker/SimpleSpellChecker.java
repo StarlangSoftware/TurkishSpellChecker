@@ -60,7 +60,7 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param word Word input.
      * @return candidates {@link ArrayList}.
      */
-    protected ArrayList<String> candidateList(Word word) {
+    public ArrayList<String> candidateList(Word word) {
         ArrayList<String> candidates;
         candidates = generateCandidateList(word.getName());
         for (int i = 0; i < candidates.size(); i++) {

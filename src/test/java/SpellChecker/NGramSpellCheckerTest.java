@@ -4,11 +4,21 @@ import Corpus.Sentence;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import Ngram.NGram;
 import Ngram.NoSmoothing;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class NGramSpellCheckerTest {
+    FsmMorphologicalAnalyzer fsm;
+    NGram<String> nGram;
+
+    @Before
+    public void setUp(){
+        fsm = new FsmMorphologicalAnalyzer();
+        nGram = new NGram<String>("ngram.txt");
+        nGram.calculateNGramProbabilities(new NoSmoothing<>());
+    }
 
     @Test
     public void testSpellCheck() {
@@ -40,13 +50,18 @@ public class NGramSpellCheckerTest {
                 new Sentence("minibü durağı"),
                 new Sentence("ntoer belgesi"),
                 new Sentence("")};
-        FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
-        NGram<String> nGram = new NGram<String>("ngram.txt");
-        nGram.calculateNGramProbabilities(new NoSmoothing<>());
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram);
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
         }
+    }
+
+    @Test
+    public void testSpellCheckSurfaceForm() {
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, false);
+        assertEquals("noter hakkında", nGramSpellChecker.spellCheck(new Sentence("noter hakkınad")).toString());
+        assertEquals("arçelik'in çamaşır", nGramSpellChecker.spellCheck(new Sentence("arçelik'in çamşaır")).toString());
+        assertEquals("ruhsat yanında", nGramSpellChecker.spellCheck(new Sentence("ruhset yanında")).toString());
     }
 
 }

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
+    private boolean rootNGram;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
@@ -18,10 +19,12 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      *
      * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram {@link NGram} type input.
+     * @param rootNGram This parameter must be true, if the nGram is NGram generated from the root words; false otherwise.
      */
-    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
+    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, boolean rootNGram) {
         super(fsm);
         this.nGram = nGram;
+        this.rootNGram = rootNGram;
     }
 
     /**
@@ -35,7 +38,11 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         if (index < sentence.wordCount()){
             FsmParseList fsmParses = fsm.morphologicalAnalysis(sentence.getWord(index).getName());
             if (fsmParses.size() != 0){
-                return fsmParses.getParseWithLongestRootWord().getWord();
+                if (rootNGram){
+                    return fsmParses.getParseWithLongestRootWord().getWord();
+                } else {
+                    return sentence.getWord(index);
+                }
             }
         }
         return null;
@@ -76,7 +83,11 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 bestProbability = 0;
                 for (String candidate : candidates) {
                     fsmParses = fsm.morphologicalAnalysis(candidate);
-                    root = fsmParses.getParseWithLongestRootWord().getWord();
+                    if (rootNGram){
+                        root = fsmParses.getParseWithLongestRootWord().getWord();
+                    } else {
+                        root = new Word(candidate);
+                    }
                     if (previousRoot != null) {
                         previousProbability = nGram.getProbability(previousRoot.getName(), root.getName());
                     } else {
