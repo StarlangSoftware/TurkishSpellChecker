@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
     private boolean rootNGram;
+    private double threshold = 0.0;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
@@ -48,6 +49,10 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         return null;
     }
 
+    public void setThreshold(double threshold){
+        this.threshold = threshold;
+    }
+
     /**
      * The spellCheck method takes a {@link Sentence} as an input and loops i times where i ranges from 0 to size of words in given sentence.
      * Then, it calls morphologicalAnalysis method with each word and assigns it to the {@link FsmParseList}, if the size of
@@ -80,7 +85,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 candidates = candidateList(word);
                 bestCandidate = word.getName();
                 bestRoot = word;
-                bestProbability = 0;
+                bestProbability = threshold;
                 for (String candidate : candidates) {
                     fsmParses = fsm.morphologicalAnalysis(candidate);
                     if (rootNGram){
