@@ -5,16 +5,13 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
-import Ngram.SimpleNGram;
 
 import java.util.ArrayList;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
-    private SimpleNGram simpleNGram;
     private boolean rootNGram;
     private double threshold = 0.0;
-    private boolean simple;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
@@ -29,23 +26,6 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         super(fsm);
         this.nGram = nGram;
         this.rootNGram = rootNGram;
-        simple = false;
-    }
-
-    /**
-     * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
-     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer} and
-     * assigns given {@link NGram} to the nGram variable.
-     *
-     * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
-     * @param simpleNGram {@link SimpleNGram} type input.
-     * @param rootNGram This parameter must be true, if the nGram is NGram generated from the root words; false otherwise.
-     */
-    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, SimpleNGram simpleNGram, boolean rootNGram) {
-        super(fsm);
-        this.simpleNGram = simpleNGram;
-        this.rootNGram = rootNGram;
-        simple = true;
     }
 
     /**
@@ -74,11 +54,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     }
 
     private double getProbability(String word1, String word2){
-        if (simple){
-            return simpleNGram.getProbability(word1 + " " + word2);
-        } else {
-            return nGram.getProbability(word1, word2);
-        }
+        return nGram.getProbability(word1, word2);
     }
 
     /**
