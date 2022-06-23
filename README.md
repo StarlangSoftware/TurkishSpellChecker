@@ -116,7 +116,8 @@ SpellChecker finds spelling errors and corrects them in Turkish. There are two t
         * Loading from an existing model:
      
                 NGram ngram = new NGram("ngram.txt");
-
+		ngram.calculateNGramProbabilities(new LaplaceSmoothing());
+		
 	*For further details, please check [here](https://github.com/starlangsoftware/NGram).*        
             
     * Afterwards, `NGramSpellChecker` can be created as below:
