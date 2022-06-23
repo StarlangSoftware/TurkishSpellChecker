@@ -5,12 +5,17 @@ import Dictionary.Word;
 import Language.TurkishLanguage;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
-
-import java.util.ArrayList;
-import java.util.Random;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class SimpleSpellChecker implements SpellChecker {
     protected FsmMorphologicalAnalyzer fsm;
+    private HashMap<String, String> mergedWords = new HashMap<>();
+    private HashMap<String, String> splitWords = new HashMap<>();
+    private static final ArrayList<String> shortcuts = new ArrayList<>(Arrays.asList("cc", "cm2", "cm", "gb", "ghz", "gr", "gram", "hz", "inc", "inch", "inç",
+            "kg", "kw", "kva", "litre", "lt", "m2", "m3", "mah", "mb", "metre", "mg", "mhz", "ml", "mm", "mp", "ms",
+            "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp"));
 
     /**
      * The generateCandidateList method takes a String as an input. Firstly, it creates a String consists of lowercase Turkish letters
@@ -25,28 +30,30 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param word String input.
      * @return ArrayList candidates.
      */
-    private ArrayList<String> generateCandidateList(String word) {
+    private ArrayList<Candidate> generateCandidateList(String word) {
         String s = TurkishLanguage.LOWERCASE_LETTERS;
-        ArrayList<String> candidates = new ArrayList<String>();
+        ArrayList<Candidate> candidates = new ArrayList<>();
         for (int i = 0; i < word.length(); i++) {
             if (i < word.length() - 1){
-                String swapped = word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2);
+                Candidate swapped = new Candidate(word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2), Operator.SPELL_CHECK);
                 candidates.add(swapped);
             }
             if (TurkishLanguage.LETTERS.contains("" + word.charAt(i)) || "wxq".contains("" + word.charAt(i))){
-                String deleted = word.substring(0, i) + word.substring(i + 1);
-                if (!deleted.matches("\\d+")){
+                Candidate deleted = new Candidate(word.substring(0, i) + word.substring(i + 1), Operator.SPELL_CHECK);
+                if (!deleted.getCandidate().matches("\\d+")){
                     candidates.add(deleted);
                 }
                 for (int j = 0; j < s.length(); j++) {
-                    String replaced = word.substring(0, i) + s.charAt(j) + word.substring(i + 1);
+                    Candidate replaced = new Candidate(word.substring(0, i) + s.charAt(j) + word.substring(i + 1), Operator.SPELL_CHECK);
                     candidates.add(replaced);
                 }
                 for (int j = 0; j < s.length(); j++) {
-                    String added = word.substring(0, i) + s.charAt(j) + word.substring(i);
+                    Candidate added = new Candidate(word.substring(0, i) + s.charAt(j) + word.substring(i), Operator.SPELL_CHECK);
                     candidates.add(added);
                 }
+
             }
+
         }
         return candidates;
     }
@@ -60,15 +67,15 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param word Word input.
      * @return candidates {@link ArrayList}.
      */
-    public ArrayList<String> candidateList(Word word) {
-        ArrayList<String> candidates;
+    public ArrayList<Candidate> candidateList(Word word) {
+        ArrayList<Candidate> candidates;
         candidates = generateCandidateList(word.getName());
         for (int i = 0; i < candidates.size(); i++) {
-            FsmParseList fsmParseList = fsm.morphologicalAnalysis(candidates.get(i));
+            FsmParseList fsmParseList = fsm.morphologicalAnalysis(candidates.get(i).getCandidate());
             if (fsmParseList.size() == 0) {
-                String newCandidate = fsm.getDictionary().getCorrectForm(candidates.get(i));
+                String newCandidate = fsm.getDictionary().getCorrectForm(candidates.get(i).getCandidate());
                 if (newCandidate != null && fsm.morphologicalAnalysis(newCandidate).size() > 0){
-                    candidates.set(i, newCandidate);
+                    candidates.set(i, new Candidate(newCandidate,Operator.MISSPELLED_REPLACE));
                 } else {
                     candidates.remove(i);
                     i--;
@@ -86,6 +93,7 @@ public class SimpleSpellChecker implements SpellChecker {
      */
     public SimpleSpellChecker(FsmMorphologicalAnalyzer fsm) {
         this.fsm = fsm;
+        loadDictionaries();
     }
 
     /**
@@ -99,28 +107,214 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param sentence {@link Sentence} type input.
      * @return Sentence result.
      */
-    public Sentence spellCheck(Sentence sentence) {
+    public Sentence spellCheck(Sentence sentence){
         Word word, newWord;
         int randomCandidate;
         Random random = new Random();
-        ArrayList<String> candidates;
+        ArrayList<Candidate> candidates;
         Sentence result = new Sentence();
-        for (int i = 0; i < sentence.wordCount(); i++) {
-            word = sentence.getWord(i);
-            FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
-            if (fsmParseList.size() == 0) {
-                candidates = candidateList(word);
-                if (candidates.size() > 0) {
-                    randomCandidate = random.nextInt(candidates.size());
-                    newWord = new Word(candidates.get(randomCandidate));
+
+        for (int repeat = 0; repeat < 2; repeat++) {
+            for (int i = 0; i < sentence.wordCount(); i++) {
+
+                word = sentence.getWord(i);
+                Word nextWord = null;
+                Word previousWord = null;
+
+                if(i > 0){
+                    previousWord = sentence.getWord(i-1);
+                }
+                if(i < sentence.wordCount()-1){
+                    nextWord = sentence.getWord(i+1);
+                }
+
+                if(forcedMisspellCheck(word,result) || forcedBackwardMergeCheck(word,result,previousWord)){
+                    continue;
+                }
+                if(forcedForwardMergeCheck(word,result,nextWord)){
+                    i++;
+                    continue;
+                }
+                if(forcedSplitCheck(word,result) || forcedShortcutCheck(word,result,previousWord)){
+                    continue;
+                }
+
+                FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
+                if (fsmParseList.size() == 0) {
+                    candidates = candidateList(word);
+                    candidates.addAll(mergedCandidatesList(previousWord,word,nextWord));
+                    candidates.addAll(splitCandidatesList(word));
+                    if (candidates.size() > 0) {
+                        randomCandidate = random.nextInt(candidates.size());
+                        newWord = new Word(candidates.get(randomCandidate).getCandidate());
+
+                        if(candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE){
+                            result.replaceWord(i-1,newWord);
+                            continue;
+                        }
+                        if(candidates.get(randomCandidate).getOperator() == Operator.FORWARD_MERGE){
+                            i++;
+                        }
+                    } else {
+                        newWord = word;
+                    }
                 } else {
                     newWord = word;
                 }
-            } else {
-                newWord = word;
+                result.addWord(newWord);
             }
-            result.addWord(newWord);
+            sentence = new Sentence(result.toString());
+            if(repeat<1)
+                result = new Sentence();
         }
+        return result;
+    }
+
+    protected boolean forcedMisspellCheck(Word word, Sentence result){
+        String forcedReplacement;
+        if((forcedReplacement = fsm.getDictionary().getCorrectForm(word.getName())) != null){
+            result.addWord(new Word(forcedReplacement));
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord){
+        String forcedReplacement;
+        if(previousWord != null && (forcedReplacement = getCorrectForm(result.getWord(result.wordCount()-1) + " " + word.getName(), mergedWords)) != null){
+            result.replaceWord(result.wordCount()-1, new Word(forcedReplacement));
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord){
+        String forcedReplacement;
+        if((nextWord != null) && (forcedReplacement = getCorrectForm(word.getName() + " " + nextWord.getName(), mergedWords)) != null){
+            result.addWord(new Word(forcedReplacement));
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean forcedSplitCheck(Word word, Sentence result){
+        String forcedReplacement;
+        if((forcedReplacement = getCorrectForm(word.getName(), splitWords)) != null){
+            result.addWord(new Word(forcedReplacement));
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean forcedShortcutCheck(Word word, Sentence result, Word previousWord){
+        String forcedReplacement;
+        String shortcutRegex = "[0-9]+(" + shortcuts.get(0);
+        for (int i = 1; i < shortcuts.size(); i++){
+            shortcutRegex += "|" + shortcuts.get(i);
+        }
+        shortcutRegex += ")";
+
+        if(shortcuts.contains(word.getName()) && previousWord.getName().matches("[0-9]+")){
+            result.addWord(word);
+            return true;
+        }
+
+        if((word.getName().matches(shortcutRegex))){
+            String[] pair = getSplitPair(word);
+            forcedReplacement = pair[0] + " " + pair[1];
+            result.addWord(new Word(forcedReplacement));
+            return true;
+        }
+        return false;
+    }
+
+    public ArrayList<Candidate> mergedCandidatesList(Word previousWord, Word word, Word nextWord) {
+        ArrayList<Candidate> mergedCandidates = new ArrayList<>();
+        Candidate backwardMergeCandidate = null;
+        Candidate forwardMergeCandidate = null;
+
+        if(previousWord != null){
+            backwardMergeCandidate = new Candidate(previousWord.getName()+word.getName(), Operator.BACKWARD_MERGE);
+            mergedCandidates.add(backwardMergeCandidate);
+        }
+        if (nextWord != null){
+            forwardMergeCandidate = new Candidate(word.getName()+nextWord.getName(), Operator.FORWARD_MERGE);
+            if(backwardMergeCandidate == null || !(backwardMergeCandidate.getCandidate().equals(forwardMergeCandidate.getCandidate())))
+                mergedCandidates.add(forwardMergeCandidate);
+        }
+
+        for (int i = 0; i < mergedCandidates.size(); i++) {
+            FsmParseList fsmParseList = fsm.morphologicalAnalysis(mergedCandidates.get(i).getCandidate());
+            if (fsmParseList.size() == 0) {
+                mergedCandidates.remove(i);
+                i--;
+            }
+        }
+        return mergedCandidates;
+    }
+
+    protected ArrayList<Candidate> splitCandidatesList(Word word) {
+        ArrayList<Candidate> splitCandidates = new ArrayList<>();
+
+        for (int i = 2; i < word.getName().length()-1; i++) {
+            String firstPart = word.getName().substring(0, i);
+            String secondPart = word.getName().substring(i);
+            FsmParseList fsmParseListFirst = fsm.morphologicalAnalysis(firstPart);
+            FsmParseList fsmParseListSecond = fsm.morphologicalAnalysis(secondPart);
+            if (fsmParseListFirst.size() > 0 && fsmParseListSecond.size() > 0)
+                splitCandidates.add(new Candidate(firstPart + " " + secondPart, Operator.SPLIT));
+        }
+        return splitCandidates;
+    }
+
+    private void loadDictionaries() {
+        ClassLoader classLoader = SimpleSpellChecker.class.getClassLoader();
+        String line;
+        String[] list;
+
+        try(
+                BufferedReader mergedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classLoader.getResourceAsStream("merged.txt")), StandardCharsets.UTF_8));
+                BufferedReader splitReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classLoader.getResourceAsStream("split.txt")), StandardCharsets.UTF_8))
+        ){
+
+            line = mergedReader.readLine();
+            while (line != null) {
+                list = line.split(" ");
+                mergedWords.put(list[0] + " " + list[1], list[2]);
+                line = mergedReader.readLine();
+            }
+
+            line = splitReader.readLine();
+            while (line != null) {
+                list = line.split(" ");
+                splitWords.put(list[0], list[1] + " " + list[2]);
+                line = splitReader.readLine();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected String getCorrectForm(String wordName, HashMap<String,String> dictionary){
+        if (dictionary.containsKey(wordName)){
+            return dictionary.get(wordName);
+        }
+        return null;
+    }
+
+    private String[] getSplitPair(Word word){
+        String[] result = new String[2];
+        result[0] = "";
+        int j;
+        for (j = 0; j < word.getName().length(); j++){
+            if ((word.getName().charAt(j) + "").matches("[0-9]")){
+                result[0] += word.getName().charAt(j);
+            } else {
+                break;
+            }
+        }
+        result[1] = word.getName().substring(j);
         return result;
     }
 }
