@@ -2,8 +2,7 @@ package SpellChecker;
 
 import Corpus.Sentence;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
-import Ngram.NGram;
-import Ngram.NoSmoothing;
+import Ngram.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +17,7 @@ public class NGramSpellCheckerTest {
         fsm = new FsmMorphologicalAnalyzer();
         nGram = new NGram<String>("ngram.txt");
         nGram.calculateNGramProbabilities(new NoSmoothing<>());
+
     }
 
     @Test
@@ -49,6 +49,30 @@ public class NGramSpellCheckerTest {
                 new Sentence("krdi köpek"),
                 new Sentence("minibü durağı"),
                 new Sentence("ntoer belgesi"),
+                new Sentence("")};
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
+        for (int i = 0; i < modified.length; i++){
+            assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
+        }
+    }
+
+    @Test
+    public void testSpellCheck2() {
+        Sentence[] original = {new Sentence("sırtıkara adındaki canlı, bir balıktır"),
+                new Sentence("siyah ayı , ayıgiller familyasına ait bir ayı türüdür"),
+                new Sentence("yeni sezon başladı"),
+                new Sentence("alışveriş için markete gitti"),
+                new Sentence("küçük bir yalıçapkını geçti"),
+                new Sentence("meslek odaları birliği yeniden toplandı"),
+                new Sentence("yeni yıl sonrasında vaka sayılarında artış oldu"),
+                new Sentence("")};
+        Sentence[] modified = {new Sentence("sırtı kara adındaki canlı, bir balıktır"),
+                new Sentence("siyahayı , ayıgiller familyasına ait bir ayı türüdür"),
+                new Sentence("yeni se zon başladı"),
+                new Sentence("alis veriş için markete gitit"),
+                new Sentence("kucuk bri yalı çapkını gecti"),
+                new Sentence("mes lek odaları birliği yendien toplandı"),
+                new Sentence("yeniyıl sonrasında vaka sayıalrında artış oldu"),
                 new Sentence("")};
         NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
         for (int i = 0; i < modified.length; i++){
