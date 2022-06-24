@@ -64,16 +64,20 @@ public class NGramSpellCheckerTest {
                 new Sentence("alışveriş için markete gitti"),
                 new Sentence("küçük bir yalıçapkını geçti"),
                 new Sentence("meslek odaları birliği yeniden toplandı"),
-                new Sentence("yeni yıl sonrasında vaka sayılarında artış oldu"),
-                new Sentence("")};
+                new Sentence("yeni yıl sonrasında vakalarda artış oldu"),
+                new Sentence("atomik saatin 10 mhz sinyali kalibrasyon hizmetlerinde referans olarak kullanılmaktadır"),
+                new Sentence("rehberimiz bu bölgedeki çıngıraklı yılan varlığı hakkında konuştu"),
+                new Sentence("bu son model cihaz 24 inç ekran büyüklüğünde ve 4 kg ağırlıktadır")};
         Sentence[] modified = {new Sentence("sırtı kara adındaki canlı, bir balıktır"),
                 new Sentence("siyahayı , ayıgiller familyasına ait bir ayı türüdür"),
                 new Sentence("yeni se zon başladı"),
                 new Sentence("alis veriş için markete gitit"),
                 new Sentence("kucuk bri yalı çapkını gecti"),
                 new Sentence("mes lek odaları birliği yendien toplandı"),
-                new Sentence("yeniyıl sonrasında vaka sayıalrında artış oldu"),
-                new Sentence("")};
+                new Sentence("yeniyıl sonrasında vakalarda artış oldu"),
+                new Sentence("atomik saatin 10mhz sinyali kalibrasyon hizmetlerinde referans olarka kullanılmaktadır"),
+                new Sentence("rehperimiz buı bölgedeki çıngıraklıyılan varlıgı hakkınd konustu"),
+                new Sentence("bu sno model ciha 24inç ekran büyüklüğünde ve 4kg ağırlıktadır")};
         NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
