@@ -2,8 +2,7 @@ package SpellChecker;
 
 import Corpus.Sentence;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
-import Ngram.NGram;
-import Ngram.NoSmoothing;
+import Ngram.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +17,7 @@ public class NGramSpellCheckerTest {
         fsm = new FsmMorphologicalAnalyzer();
         nGram = new NGram<String>("ngram.txt");
         nGram.calculateNGramProbabilities(new NoSmoothing<>());
+
     }
 
     @Test
@@ -50,6 +50,34 @@ public class NGramSpellCheckerTest {
                 new Sentence("minibü durağı"),
                 new Sentence("ntoer belgesi"),
                 new Sentence("")};
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
+        for (int i = 0; i < modified.length; i++){
+            assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
+        }
+    }
+
+    @Test
+    public void testSpellCheck2() {
+        Sentence[] original = {new Sentence("sırtıkara adındaki canlı, bir balıktır"),
+                new Sentence("siyah ayı , ayıgiller familyasına ait bir ayı türüdür"),
+                new Sentence("yeni sezon başladı"),
+                new Sentence("alışveriş için markete gitti"),
+                new Sentence("küçük bir yalıçapkını geçti"),
+                new Sentence("meslek odaları birliği yeniden toplandı"),
+                new Sentence("yeni yıl sonrasında vakalarda artış oldu"),
+                new Sentence("atomik saatin 10 mhz sinyali kalibrasyon hizmetlerinde referans olarak kullanılmaktadır"),
+                new Sentence("rehberimiz bu bölgedeki çıngıraklı yılan varlığı hakkında konuştu"),
+                new Sentence("bu son model cihaz 24 inç ekran büyüklüğünde ve 4 kg ağırlıktadır")};
+        Sentence[] modified = {new Sentence("sırtı kara adındaki canlı, bir balıktır"),
+                new Sentence("siyahayı , ayıgiller familyasına ait bir ayı türüdür"),
+                new Sentence("yeni se zon başladı"),
+                new Sentence("alis veriş için markete gitit"),
+                new Sentence("kucuk bri yalı çapkını gecti"),
+                new Sentence("mes lek odaları birliği yendien toplandı"),
+                new Sentence("yeniyıl sonrasında vakalarda artış oldu"),
+                new Sentence("atomik saatin 10mhz sinyali kalibrasyon hizmetlerinde referans olarka kullanılmaktadır"),
+                new Sentence("rehperimiz buı bölgedeki çıngıraklıyılan varlıgı hakkınd konustu"),
+                new Sentence("bu sno model ciha 24inç ekran büyüklüğünde ve 4kg ağırlıktadır")};
         NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());

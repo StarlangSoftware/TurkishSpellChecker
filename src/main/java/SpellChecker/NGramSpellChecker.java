@@ -48,6 +48,17 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         }
         return null;
     }
+    private Word checkAnalysisAndSetRoot(String word){
+        FsmParseList fsmParses = fsm.morphologicalAnalysis(word);
+        if (fsmParses.size() != 0){
+            if (rootNGram){
+                return fsmParses.getParseWithLongestRootWord().getWord();
+            } else {
+                return new Word(word);
+            }
+        }
+        return null;
+    }
 
     public void setThreshold(double threshold){
         this.threshold = threshold;
@@ -76,51 +87,112 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     public Sentence spellCheck(Sentence sentence) {
         Word word, bestRoot;
         Word previousRoot = null, root, nextRoot;
-        String bestCandidate;
-        FsmParseList fsmParses;
+        Candidate bestCandidate;
         double previousProbability, nextProbability, bestProbability;
-        ArrayList<String> candidates;
+        ArrayList<Candidate> candidates;
         Sentence result = new Sentence();
         root = checkAnalysisAndSetRoot(sentence, 0);
         nextRoot = checkAnalysisAndSetRoot(sentence, 1);
-        for (int i = 0; i < sentence.wordCount(); i++) {
-            word = sentence.getWord(i);
-            if (root == null) {
-                candidates = candidateList(word);
-                bestCandidate = word.getName();
-                bestRoot = word;
-                bestProbability = threshold;
-                for (String candidate : candidates) {
-                    fsmParses = fsm.morphologicalAnalysis(candidate);
-                    if (rootNGram){
-                        root = fsmParses.getParseWithLongestRootWord().getWord();
-                    } else {
-                        root = new Word(candidate);
-                    }
-                    if (previousRoot != null) {
-                        previousProbability = getProbability(previousRoot.getName(), root.getName());
-                    } else {
-                        previousProbability = 0.0;
-                    }
-                    if (nextRoot != null) {
-                        nextProbability = getProbability(root.getName(), nextRoot.getName());
-                    } else {
-                        nextProbability = 0.0;
-                    }
-                    if (Math.max(previousProbability, nextProbability) > bestProbability) {
-                        bestCandidate = candidate;
-                        bestRoot = root;
-                        bestProbability = Math.max(previousProbability, nextProbability);
-                    }
+
+        for (int repeat = 0; repeat < 2; repeat++) {
+            for (int i = 0; i < sentence.wordCount(); i++) {
+                Word nextWord = null;
+                Word previousWord = null;
+                Word nextNextWord = null;
+                Word previousPreviousWord = null;
+                word = sentence.getWord(i);
+
+                if(i > 0)
+                    previousWord = sentence.getWord(i-1);
+                if(i > 1)
+                    previousPreviousWord = sentence.getWord(i-2);
+                if(i < sentence.wordCount()-1)
+                    nextWord = sentence.getWord(i+1);
+                if(i < sentence.wordCount()-2)
+                    nextNextWord = sentence.getWord(i+2);
+
+                if(forcedMisspellCheck(word,result) || forcedBackwardMergeCheck(word,result,previousWord)){
+                    continue;
                 }
-                root = bestRoot;
-                result.addWord(new Word(bestCandidate));
-            } else {
-                result.addWord(word);
+                if(forcedForwardMergeCheck(word,result,nextWord)){
+                    i++;
+                    continue;
+                }
+                if(forcedSplitCheck(word,result) || forcedShortcutCheck(word,result,previousWord)){
+                    continue;
+                }
+
+                if (root == null) {
+                    candidates = candidateList(word);
+                    candidates.addAll(mergedCandidatesList(previousWord,word,nextWord));
+                    candidates.addAll(splitCandidatesList(word));
+                    bestCandidate = new Candidate(word.getName(), Operator.NO_CHANGE);
+                    bestRoot = word;
+                    bestProbability = threshold;
+
+                    for (Candidate candidate : candidates) {
+
+                        if(candidate.getOperator().equals(Operator.SPELL_CHECK) || candidate.getOperator().equals(Operator.MISSPELLED_REPLACE)){
+                            root = checkAnalysisAndSetRoot(candidate.getCandidate());
+                        }
+
+                        if(candidate.getOperator().equals(Operator.BACKWARD_MERGE) && previousWord != null && previousPreviousWord != null){
+                            root = checkAnalysisAndSetRoot(previousWord.getName()+word.getName());
+                            previousRoot = checkAnalysisAndSetRoot(previousPreviousWord.getName());
+                        }
+
+                        if(candidate.getOperator().equals(Operator.FORWARD_MERGE) && nextWord != null && nextNextWord != null){
+                            root = checkAnalysisAndSetRoot(word.getName()+nextWord.getName());
+                            nextRoot = checkAnalysisAndSetRoot(nextNextWord.getName());
+                        }
+
+                        if (previousRoot != null) {
+                            if(candidate.getOperator().equals(Operator.SPLIT)){
+                                root = checkAnalysisAndSetRoot(candidate.getCandidate().split(" ")[0]);
+                            }
+                            previousProbability = getProbability(previousRoot.getName(), root.getName());
+                        } else {
+                            previousProbability = 0.0;
+                        }
+                        if (nextRoot != null) {
+                            if(candidate.getOperator().equals(Operator.SPLIT)){
+                                root = checkAnalysisAndSetRoot(candidate.getCandidate().split(" ")[1]);
+                            }
+                            nextProbability = getProbability(root.getName(), nextRoot.getName());
+                        } else {
+                            nextProbability = 0.0;
+                        }
+
+                        if (Math.max(previousProbability, nextProbability) > bestProbability) {
+                            bestCandidate = candidate;
+                            bestRoot = root;
+                            bestProbability = Math.max(previousProbability, nextProbability);
+                        }
+                    }
+                    if(bestCandidate.getOperator().equals(Operator.FORWARD_MERGE)) {
+                        i++;
+                    }
+                    if(bestCandidate.getOperator().equals(Operator.BACKWARD_MERGE)) {
+                        result.replaceWord(i - 1, new Word(bestCandidate.getCandidate()));
+                    }
+                    else{
+                        result.addWord(new Word(bestCandidate.getCandidate()));
+                    }
+                    root = bestRoot;
+                } else {
+                    result.addWord(word);
+                }
+                previousRoot = root;
+                root = nextRoot;
+                nextRoot = checkAnalysisAndSetRoot(sentence, i + 2);
             }
-            previousRoot = root;
-            root = nextRoot;
-            nextRoot = checkAnalysisAndSetRoot(sentence, i + 2);
+            sentence = new Sentence(result.toString());
+            if(repeat<1){
+                result = new Sentence();
+                previousRoot = null;
+                root = checkAnalysisAndSetRoot(sentence, 0);
+                nextRoot = checkAnalysisAndSetRoot(sentence, 1);
+            }
         }
         return result;
     }
