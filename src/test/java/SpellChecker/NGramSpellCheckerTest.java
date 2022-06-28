@@ -32,7 +32,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("yılın son ayında 10 gazeteci gözaltına alındı"),
                 new Sentence("iki pilotun kullandığı uçakta bir hostes görev alıyor"),
                 new Sentence("son derece kısıtlı kelimeler çerçevesinde kendilerini uzun cümlelerle ifade edebiliyorlar"),
-                new Sentence("kedi köpek"),
+                new Sentence("kredi köpek"),
                 new Sentence("minibüs durağı"),
                 new Sentence("noter belgesi"),
                 new Sentence("")};
@@ -58,9 +58,11 @@ public class NGramSpellCheckerTest {
 
     @Test
     public void testSpellCheck2() {
-        Sentence[] original = {new Sentence("sırtıkara adındaki canlı, bir balıktır"),
-                new Sentence("siyah ayı , ayıgiller familyasına ait bir ayı türüdür"),
+        Sentence[] original = {
                 new Sentence("yeni sezon başladı"),
+                new Sentence("sırtıkara adındaki canlı, bir balıktır"),
+                new Sentence("siyah ayı , ayıgiller familyasına ait bir ayı türüdür"),
+                new Sentence("yeni sezon başladı gibi"),
                 new Sentence("alışveriş için markete gitti"),
                 new Sentence("küçük bir yalıçapkını geçti"),
                 new Sentence("meslek odaları birliği yeniden toplandı"),
@@ -68,9 +70,11 @@ public class NGramSpellCheckerTest {
                 new Sentence("atomik saatin 10 mhz sinyali kalibrasyon hizmetlerinde referans olarak kullanılmaktadır"),
                 new Sentence("rehberimiz bu bölgedeki çıngıraklı yılan varlığı hakkında konuştu"),
                 new Sentence("bu son model cihaz 24 inç ekran büyüklüğünde ve 4 kg ağırlıktadır")};
-        Sentence[] modified = {new Sentence("sırtı kara adındaki canlı, bir balıktır"),
+        Sentence[] modified = {
+                new Sentence("yenisezon başladı"),
+                new Sentence("sırtı kara adındaki canlı, bir balıktır"),
                 new Sentence("siyahayı , ayıgiller familyasına ait bir ayı türüdür"),
-                new Sentence("yeni se zon başladı"),
+                new Sentence("yeni se zon başladı gibs"),
                 new Sentence("alis veriş için markete gitit"),
                 new Sentence("kucuk bri yalı çapkını gecti"),
                 new Sentence("mes lek odaları birliği yendien toplandı"),
