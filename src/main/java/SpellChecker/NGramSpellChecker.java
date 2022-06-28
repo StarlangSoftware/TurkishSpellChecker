@@ -35,7 +35,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      * @param index Index of the word
      * @return If the word is misspelled, null; otherwise the longest root word of the possible analyses.
      */
-    private Word checkAnalysisAndSetRootForWordIndex(Sentence sentence, int index){
+    private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index){
         if (index < sentence.wordCount()){
             FsmParseList fsmParses = fsm.morphologicalAnalysis(sentence.getWord(index).getName());
             if (fsmParses.size() != 0){
@@ -91,8 +91,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         double previousProbability, nextProbability, bestProbability;
         ArrayList<Candidate> candidates;
         Sentence result = new Sentence();
-        root = checkAnalysisAndSetRootForWordIndex(sentence, 0);
-        nextRoot = checkAnalysisAndSetRootForWordIndex(sentence, 1);
+        root = checkAnalysisAndSetRootForWordAtIndex(sentence, 0);
+        nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, 1);
 
         for (int repeat = 0; repeat < 2; repeat++) {
             for (int i = 0; i < sentence.wordCount(); i++) {
@@ -185,14 +185,14 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 }
                 previousRoot = root;
                 root = nextRoot;
-                nextRoot = checkAnalysisAndSetRootForWordIndex(sentence, i + 2);
+                nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
             }
             sentence = new Sentence(result.toString());
             if (repeat < 1){
                 result = new Sentence();
                 previousRoot = null;
-                root = checkAnalysisAndSetRootForWordIndex(sentence, 0);
-                nextRoot = checkAnalysisAndSetRootForWordIndex(sentence, 1);
+                root = checkAnalysisAndSetRootForWordAtIndex(sentence, 0);
+                nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, 1);
             }
         }
         return result;
