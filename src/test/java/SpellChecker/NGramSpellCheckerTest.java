@@ -32,7 +32,6 @@ public class NGramSpellCheckerTest {
                 new Sentence("yılın son ayında 10 gazeteci gözaltına alındı"),
                 new Sentence("iki pilotun kullandığı uçakta bir hostes görev alıyor"),
                 new Sentence("son derece kısıtlı kelimeler çerçevesinde kendilerini uzun cümlelerle ifade edebiliyorlar"),
-                new Sentence("kredi köpek"),
                 new Sentence("minibüs durağı"),
                 new Sentence("noter belgesi"),
                 new Sentence("")};
@@ -46,7 +45,6 @@ public class NGramSpellCheckerTest {
                 new Sentence("yılın sno ayında 10 gazteci gözlatına alündı"),
                 new Sentence("iki piotun kulçandığı uçkata üir hotes görçv alyıor"),
                 new Sentence("son deece kısütlı keilmeler çeçevesinde kendülerini uzuü cümllerle ifüde edbeiliyorlar"),
-                new Sentence("krdi köpek"),
                 new Sentence("minibü durağı"),
                 new Sentence("ntoer belgesi"),
                 new Sentence("")};

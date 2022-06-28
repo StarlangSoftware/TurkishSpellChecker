@@ -145,7 +145,6 @@ public class SimpleSpellChecker implements SpellChecker {
                 if (fsmParseList.size() == 0) {
                     candidates = candidateList(word);
                     candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
-                    candidates.addAll(splitCandidatesList(word));
                     if (candidates.size() > 0) {
                         randomCandidate = random.nextInt(candidates.size());
                         newWord = new Word(candidates.get(randomCandidate).getCandidate());
