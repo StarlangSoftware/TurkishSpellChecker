@@ -144,7 +144,12 @@ public class SimpleSpellChecker implements SpellChecker {
                 FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
                 if (fsmParseList.size() == 0) {
                     candidates = candidateList(word);
-                    candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
+                    if (candidates.size() < 1) {
+                        candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
+                    }
+                    if (candidates.size() < 1) {
+                        candidates.addAll(splitCandidatesList(word));
+                    }
                     if (candidates.size() > 0) {
                         randomCandidate = random.nextInt(candidates.size());
                         newWord = new Word(candidates.get(randomCandidate).getCandidate());
@@ -262,7 +267,7 @@ public class SimpleSpellChecker implements SpellChecker {
 
     public ArrayList<Candidate> splitCandidatesList(Word word) {
         ArrayList<Candidate> splitCandidates = new ArrayList<>();
-        for (int i = 2; i < word.getName().length()-1; i++) {
+        for (int i = 4; i < word.getName().length()-3; i++) {
             String firstPart = word.getName().substring(0, i);
             String secondPart = word.getName().substring(i);
             FsmParseList fsmParseListFirst = fsm.morphologicalAnalysis(firstPart);
