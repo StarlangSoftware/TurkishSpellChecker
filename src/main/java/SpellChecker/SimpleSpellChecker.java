@@ -267,7 +267,7 @@ public class SimpleSpellChecker implements SpellChecker {
 
     public ArrayList<Candidate> splitCandidatesList(Word word) {
         ArrayList<Candidate> splitCandidates = new ArrayList<>();
-        for (int i = 4; i < word.getName().length()-3; i++) {
+        for (int i = 4; i < word.getName().length() - 3; i++) {
             String firstPart = word.getName().substring(0, i);
             String secondPart = word.getName().substring(i);
             FsmParseList fsmParseListFirst = fsm.morphologicalAnalysis(firstPart);
@@ -317,7 +317,7 @@ public class SimpleSpellChecker implements SpellChecker {
         result[0] = "";
         int j;
         for (j = 0; j < word.getName().length(); j++){
-            if ((word.getName().charAt(j) + "").matches("[0-9]")){
+            if (word.getName().charAt(j) >= '0' && word.getName().charAt(j) <= '9') {
                 result[0] += word.getName().charAt(j);
             } else {
                 break;
