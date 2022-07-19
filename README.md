@@ -8,6 +8,11 @@ Video Lectures
 
 [<img src=video.jpg width="50%">](https://youtu.be/wKwTKv6Jlo0)
 
+Class Diagram
+============
+
+<img src="classDiagram.png">
+
 For Developers
 ============
 
