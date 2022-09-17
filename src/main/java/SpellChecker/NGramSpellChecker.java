@@ -135,7 +135,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     for (Candidate candidate : candidates) {
 
                         if (candidate.getOperator().equals(Operator.SPELL_CHECK) || candidate.getOperator().equals(Operator.MISSPELLED_REPLACE)){
-                            root = checkAnalysisAndSetRoot(candidate.getCandidate());
+                            root = checkAnalysisAndSetRoot(candidate.getName());
                         }
 
                         if (candidate.getOperator().equals(Operator.BACKWARD_MERGE) && previousWord != null && previousPreviousWord != null){
@@ -150,7 +150,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
 
                         if (previousRoot != null) {
                             if (candidate.getOperator().equals(Operator.SPLIT)){
-                                root = checkAnalysisAndSetRoot(candidate.getCandidate().split(" ")[0]);
+                                root = checkAnalysisAndSetRoot(candidate.getName().split(" ")[0]);
                             }
                             previousProbability = getProbability(previousRoot.getName(), root.getName());
                         } else {
@@ -158,7 +158,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                         }
                         if (nextRoot != null) {
                             if (candidate.getOperator().equals(Operator.SPLIT)){
-                                root = checkAnalysisAndSetRoot(candidate.getCandidate().split(" ")[1]);
+                                root = checkAnalysisAndSetRoot(candidate.getName().split(" ")[1]);
                             }
                             nextProbability = getProbability(root.getName(), nextRoot.getName());
                         } else {
@@ -175,9 +175,9 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                         i++;
                     }
                     if (bestCandidate.getOperator().equals(Operator.BACKWARD_MERGE)) {
-                        result.replaceWord(i - 1, new Word(bestCandidate.getCandidate()));
+                        result.replaceWord(i - 1, new Word(bestCandidate.getName()));
                     } else{
-                        result.addWord(new Word(bestCandidate.getCandidate()));
+                        result.addWord(new Word(bestCandidate.getName()));
                     }
                     root = bestRoot;
                 } else {

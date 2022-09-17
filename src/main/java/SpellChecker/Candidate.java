@@ -1,31 +1,13 @@
 package SpellChecker;
 
-import java.util.Objects;
+import Dictionary.Word;
 
-public class Candidate {
-    private String candidate;
+public class Candidate extends Word {
     private Operator operator;
 
     public Candidate(String candidate, Operator operator) {
-        this.candidate = candidate;
+        super(candidate);
         this.operator = operator;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Candidate candidate1 = (Candidate) o;
-        return candidate.equals(candidate1.candidate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(candidate);
-    }
-
-    public String getCandidate() {
-        return candidate;
     }
 
     public Operator getOperator() {

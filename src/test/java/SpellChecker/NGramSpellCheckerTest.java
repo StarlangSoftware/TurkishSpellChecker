@@ -17,7 +17,6 @@ public class NGramSpellCheckerTest {
         fsm = new FsmMorphologicalAnalyzer();
         nGram = new NGram<String>("ngram.txt");
         nGram.calculateNGramProbabilities(new NoSmoothing<>());
-
     }
 
     @Test

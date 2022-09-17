@@ -42,7 +42,7 @@ public class SimpleSpellChecker implements SpellChecker {
             }
             if (TurkishLanguage.LETTERS.contains("" + word.charAt(i)) || "wxq".contains("" + word.charAt(i))){
                 Candidate deleted = new Candidate(word.substring(0, i) + word.substring(i + 1), Operator.SPELL_CHECK);
-                if (!deleted.getCandidate().matches("\\d+")){
+                if (!deleted.getName().matches("\\d+")){
                     candidates.add(deleted);
                 }
                 for (int j = 0; j < s.length(); j++) {
@@ -73,9 +73,9 @@ public class SimpleSpellChecker implements SpellChecker {
         ArrayList<Candidate> candidates;
         candidates = generateCandidateList(word.getName());
         for (int i = 0; i < candidates.size(); i++) {
-            FsmParseList fsmParseList = fsm.morphologicalAnalysis(candidates.get(i).getCandidate());
+            FsmParseList fsmParseList = fsm.morphologicalAnalysis(candidates.get(i).getName());
             if (fsmParseList.size() == 0) {
-                String newCandidate = fsm.getDictionary().getCorrectForm(candidates.get(i).getCandidate());
+                String newCandidate = fsm.getDictionary().getCorrectForm(candidates.get(i).getName());
                 if (newCandidate != null && fsm.morphologicalAnalysis(newCandidate).size() > 0){
                     candidates.set(i, new Candidate(newCandidate,Operator.MISSPELLED_REPLACE));
                 } else {
@@ -152,7 +152,7 @@ public class SimpleSpellChecker implements SpellChecker {
                     }
                     if (candidates.size() > 0) {
                         randomCandidate = random.nextInt(candidates.size());
-                        newWord = new Word(candidates.get(randomCandidate).getCandidate());
+                        newWord = new Word(candidates.get(randomCandidate).getName());
 
                         if (candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE){
                             result.replaceWord(i - 1, newWord);
@@ -250,13 +250,13 @@ public class SimpleSpellChecker implements SpellChecker {
         }
         if (nextWord != null){
             forwardMergeCandidate = new Candidate(word.getName() + nextWord.getName(), Operator.FORWARD_MERGE);
-            if (backwardMergeCandidate == null || !(backwardMergeCandidate.getCandidate().equals(forwardMergeCandidate.getCandidate()))){
+            if (backwardMergeCandidate == null || !(backwardMergeCandidate.getName().equals(forwardMergeCandidate.getName()))){
                 mergedCandidates.add(forwardMergeCandidate);
             }
         }
 
         for (int i = 0; i < mergedCandidates.size(); i++) {
-            FsmParseList fsmParseList = fsm.morphologicalAnalysis(mergedCandidates.get(i).getCandidate());
+            FsmParseList fsmParseList = fsm.morphologicalAnalysis(mergedCandidates.get(i).getName());
             if (fsmParseList.size() == 0) {
                 mergedCandidates.remove(i);
                 i--;
