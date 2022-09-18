@@ -93,7 +93,6 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         Sentence result = new Sentence();
         root = checkAnalysisAndSetRootForWordAtIndex(sentence, 0);
         nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, 1);
-
         for (int repeat = 0; repeat < 2; repeat++) {
             for (int i = 0; i < sentence.wordCount(); i++) {
                 Word nextWord = null;
@@ -101,7 +100,6 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 Word nextNextWord = null;
                 Word previousPreviousWord = null;
                 word = sentence.getWord(i);
-
                 if (i > 0){
                     previousWord = sentence.getWord(i - 1);
                 }
@@ -131,25 +129,20 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     bestCandidate = new Candidate(word.getName(), Operator.NO_CHANGE);
                     bestRoot = word;
                     bestProbability = threshold;
-
                     for (Candidate candidate : candidates) {
-
-                        if (candidate.getOperator().equals(Operator.SPELL_CHECK) || candidate.getOperator().equals(Operator.MISSPELLED_REPLACE)){
+                        if (candidate.getOperator() == Operator.SPELL_CHECK || candidate.getOperator() == Operator.MISSPELLED_REPLACE){
                             root = checkAnalysisAndSetRoot(candidate.getName());
                         }
-
-                        if (candidate.getOperator().equals(Operator.BACKWARD_MERGE) && previousWord != null && previousPreviousWord != null){
+                        if (candidate.getOperator() == Operator.BACKWARD_MERGE && previousWord != null && previousPreviousWord != null){
                             root = checkAnalysisAndSetRoot(previousWord.getName() + word.getName());
                             previousRoot = checkAnalysisAndSetRoot(previousPreviousWord.getName());
                         }
-
-                        if (candidate.getOperator().equals(Operator.FORWARD_MERGE) && nextWord != null && nextNextWord != null){
+                        if (candidate.getOperator() == Operator.FORWARD_MERGE && nextWord != null && nextNextWord != null){
                             root = checkAnalysisAndSetRoot(word.getName() + nextWord.getName());
                             nextRoot = checkAnalysisAndSetRoot(nextNextWord.getName());
                         }
-
                         if (previousRoot != null) {
-                            if (candidate.getOperator().equals(Operator.SPLIT)){
+                            if (candidate.getOperator() == Operator.SPLIT){
                                 root = checkAnalysisAndSetRoot(candidate.getName().split(" ")[0]);
                             }
                             previousProbability = getProbability(previousRoot.getName(), root.getName());
@@ -157,24 +150,23 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                             previousProbability = 0.0;
                         }
                         if (nextRoot != null) {
-                            if (candidate.getOperator().equals(Operator.SPLIT)){
+                            if (candidate.getOperator() == Operator.SPLIT){
                                 root = checkAnalysisAndSetRoot(candidate.getName().split(" ")[1]);
                             }
                             nextProbability = getProbability(root.getName(), nextRoot.getName());
                         } else {
                             nextProbability = 0.0;
                         }
-
                         if (Math.max(previousProbability, nextProbability) > bestProbability) {
                             bestCandidate = candidate;
                             bestRoot = root;
                             bestProbability = Math.max(previousProbability, nextProbability);
                         }
                     }
-                    if (bestCandidate.getOperator().equals(Operator.FORWARD_MERGE)) {
+                    if (bestCandidate.getOperator() == Operator.FORWARD_MERGE) {
                         i++;
                     }
-                    if (bestCandidate.getOperator().equals(Operator.BACKWARD_MERGE)) {
+                    if (bestCandidate.getOperator() == Operator.BACKWARD_MERGE) {
                         result.replaceWord(i - 1, new Word(bestCandidate.getName()));
                     } else{
                         result.addWord(new Word(bestCandidate.getName()));
@@ -187,7 +179,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 root = nextRoot;
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
             }
-            sentence = new Sentence(result.toString());
+            sentence = result;
             if (repeat < 1){
                 result = new Sentence();
                 previousRoot = null;
