@@ -35,7 +35,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("noter belgesi"),
                 new Sentence("")};
         Sentence[] modified = {new Sentence("demokratik cumhüriyet rn kımetli varlıgımızdır"),
-                new Sentence("bu tblodaki değerlğr zedelenmeyecüktir"),
+                new Sentence("bu tblodaki değerler zedelenmeyecektir"),
                 new Sentence("milliyet'in geeneksel yılin spoşcusu ankşti 43. yeşını doldürdu"),
                 new Sentence("demokrasinin icşdı buf ayrmıı bulandürdı"),
                 new Sentence("dışişleri mütseşarı Öymen'in 1997'nin iljk aylğrında Bağdat'a gitmesi öngörülüyor"),

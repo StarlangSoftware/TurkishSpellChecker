@@ -183,7 +183,7 @@ public class SimpleSpellChecker implements SpellChecker {
 
     protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord){
         if (previousWord != null){
-            String forcedReplacement = getCorrectForm(result.getWord(result.wordCount() - 1) + " " + word.getName(), mergedWords);
+            String forcedReplacement = getCorrectForm(result.getWord(result.wordCount() - 1).getName() + " " + word.getName(), mergedWords);
             if (forcedReplacement != null) {
                 result.replaceWord(result.wordCount() - 1, new Word(forcedReplacement));
                 return true;
