@@ -115,59 +115,56 @@ public class SimpleSpellChecker implements SpellChecker {
         Random random = new Random();
         ArrayList<Candidate> candidates;
         Sentence result = new Sentence();
-        for (int repeat = 0; repeat < 2; repeat++) {
-            for (int i = 0; i < sentence.wordCount(); i++) {
-                word = sentence.getWord(i);
-                Word nextWord = null;
-                Word previousWord = null;
-                if (i > 0){
-                    previousWord = sentence.getWord(i - 1);
-                }
-                if (i < sentence.wordCount() - 1){
-                    nextWord = sentence.getWord(i + 1);
-                }
-                if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord)){
-                    continue;
-                }
-                if (forcedForwardMergeCheck(word, result, nextWord)){
-                    i++;
-                    continue;
-                }
-                if (forcedSplitCheck(word, result) || forcedShortcutCheck(word, result, previousWord)){
-                    continue;
-                }
-                FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
-                if (fsmParseList.size() == 0) {
+        for (int i = 0; i < sentence.wordCount(); i++) {
+            word = sentence.getWord(i);
+            Word nextWord = null;
+            Word previousWord = null;
+            if (i > 0){
+                previousWord = sentence.getWord(i - 1);
+            }
+            if (i < sentence.wordCount() - 1){
+                nextWord = sentence.getWord(i + 1);
+            }
+            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord)){
+                continue;
+            }
+            if (forcedForwardMergeCheck(word, result, nextWord)){
+                i++;
+                continue;
+            }
+            if (forcedSplitCheck(word, result) || forcedShortcutCheck(word, result)){
+                continue;
+            }
+            FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
+            if (fsmParseList.size() == 0) {
+                candidates = mergedCandidatesList(previousWord, word, nextWord);
+                if (candidates.size() < 1) {
                     candidates = candidateList(word);
-                    if (candidates.size() < 1) {
-                        candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
+                }
+                if (candidates.size() < 1) {
+                    candidates.addAll(splitCandidatesList(word));
+                }
+                if (candidates.size() > 0) {
+                    randomCandidate = random.nextInt(candidates.size());
+                    newWord = new Word(candidates.get(randomCandidate).getName());
+                    if (candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE){
+                        result.replaceWord(i - 1, newWord);
+                        continue;
                     }
-                    if (candidates.size() < 1) {
-                        candidates.addAll(splitCandidatesList(word));
+                    if (candidates.get(randomCandidate).getOperator() == Operator.FORWARD_MERGE){
+                        i++;
                     }
-                    if (candidates.size() > 0) {
-                        randomCandidate = random.nextInt(candidates.size());
-                        newWord = new Word(candidates.get(randomCandidate).getName());
-
-                        if (candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE){
-                            result.replaceWord(i - 1, newWord);
-                            continue;
-                        }
-                        if (candidates.get(randomCandidate).getOperator() == Operator.FORWARD_MERGE){
-                            i++;
-                        }
-                    } else {
-                        newWord = word;
+                    if (candidates.get(randomCandidate).getOperator() == Operator.SPLIT){
+                        addSplitWords(candidates.get(randomCandidate).getName(), result);
+                        continue;
                     }
                 } else {
                     newWord = word;
                 }
-                result.addWord(newWord);
+            } else {
+                newWord = word;
             }
-            sentence = result;
-            if (repeat < 1){
-                result = new Sentence();
-            }
+            result.addWord(newWord);
         }
         return result;
     }
@@ -203,30 +200,31 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    protected void addSplitWords(String multiWord, Sentence result){
+        String[] words = multiWord.split(" ");
+        result.addWord(new Word(words[0]));
+        result.addWord(new Word(words[1]));
+    }
+
     protected boolean forcedSplitCheck(Word word, Sentence result){
         String forcedReplacement = getCorrectForm(word.getName(), splitWords);
         if (forcedReplacement != null){
-            result.addWord(new Word(forcedReplacement));
+            addSplitWords(forcedReplacement, result);
             return true;
         }
         return false;
     }
 
-    protected boolean forcedShortcutCheck(Word word, Sentence result, Word previousWord){
-        String forcedReplacement;
+    protected boolean forcedShortcutCheck(Word word, Sentence result){
         String shortcutRegex = "[0-9]+(" + shortcuts.get(0);
         for (int i = 1; i < shortcuts.size(); i++){
             shortcutRegex += "|" + shortcuts.get(i);
         }
         shortcutRegex += ")";
-        if (shortcuts.contains(word.getName()) && previousWord.getName().matches("[0-9]+")){
-            result.addWord(word);
-            return true;
-        }
         if (word.getName().matches(shortcutRegex)){
             AbstractMap.SimpleEntry<String, String> pair = getSplitPair(word);
-            forcedReplacement = pair.getKey() + " " + pair.getValue();
-            result.addWord(new Word(forcedReplacement));
+            result.addWord(new Word(pair.getKey()));
+            result.addWord(new Word(pair.getValue()));
             return true;
         }
         return false;

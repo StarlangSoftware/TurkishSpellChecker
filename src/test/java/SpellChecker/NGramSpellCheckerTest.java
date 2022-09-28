@@ -57,7 +57,7 @@ public class NGramSpellCheckerTest {
     public void testSpellCheck2() {
         Sentence[] original = {
                 new Sentence("yeni sezon başladı"),
-                new Sentence("sırtıkara adındaki canlı, bir balıktır"),
+                new Sentence("sırtıkara adındaki canlı , bir balıktır"),
                 new Sentence("siyah ayı , ayıgiller familyasına ait bir ayı türüdür"),
                 new Sentence("yeni sezon başladı gibi"),
                 new Sentence("alışveriş için markete gitti"),
@@ -69,7 +69,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("bu son model cihaz 24 inç ekran büyüklüğünde ve 9 kg ağırlıktadır")};
         Sentence[] modified = {
                 new Sentence("yenisezon başladı"),
-                new Sentence("sırtı kara adındaki canlı, bir balıktır"),
+                new Sentence("sırtı kara adındaki canlı , bir balıktır"),
                 new Sentence("siyahayı , ayıgiller familyasına ait bir ayı türüdür"),
                 new Sentence("yeni se zon başladı gibs"),
                 new Sentence("alis veriş için markete gitit"),
