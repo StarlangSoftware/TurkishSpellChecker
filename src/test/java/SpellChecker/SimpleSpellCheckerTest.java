@@ -39,9 +39,9 @@ public class SimpleSpellCheckerTest {
                 new Sentence("rehperimiz buı bölgedeki çıngıraklıyılan varlıgı hakkınd konustu"),
                 new Sentence("bu son model ciha 24inç ekran büyüklüğünde ve 9kg ağırlıktadır")};
         FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
-        SimpleSpellChecker nGramSpellChecker = new SimpleSpellChecker(fsm);
+        SimpleSpellChecker simpleSpellChecker = new SimpleSpellChecker(fsm);
         for (int i = 0; i < modified.length; i++){
-            assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
+            assertEquals(original[i].toString(), simpleSpellChecker.spellCheck(modified[i]).toString());
         }
     }
 
