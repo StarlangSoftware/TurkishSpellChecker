@@ -149,13 +149,13 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     }
                     if (candidate.getOperator() == Operator.BACKWARD_MERGE && previousWord != null) {
                         root = checkAnalysisAndSetRoot(previousWord.getName() + word.getName());
-                        if(previousPreviousWord != null) {
+                        if (previousPreviousWord != null) {
                             previousRoot = checkAnalysisAndSetRoot(previousPreviousWord.getName());
                         }
                     }
                     if (candidate.getOperator() == Operator.FORWARD_MERGE && nextWord != null) {
                         root = checkAnalysisAndSetRoot(word.getName() + nextWord.getName());
-                        if(nextNextWord != null) {
+                        if (nextNextWord != null) {
                             nextRoot = checkAnalysisAndSetRoot(nextNextWord.getName());
                         }
                     }
