@@ -147,13 +147,17 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     if (candidate.getOperator() == Operator.SPELL_CHECK || candidate.getOperator() == Operator.MISSPELLED_REPLACE){
                         root = checkAnalysisAndSetRoot(candidate.getName());
                     }
-                    if (candidate.getOperator() == Operator.BACKWARD_MERGE && previousWord != null && previousPreviousWord != null){
+                    if (candidate.getOperator() == Operator.BACKWARD_MERGE && previousWord != null) {
                         root = checkAnalysisAndSetRoot(previousWord.getName() + word.getName());
-                        previousRoot = checkAnalysisAndSetRoot(previousPreviousWord.getName());
+                        if(previousPreviousWord != null) {
+                            previousRoot = checkAnalysisAndSetRoot(previousPreviousWord.getName());
+                        }
                     }
-                    if (candidate.getOperator() == Operator.FORWARD_MERGE && nextWord != null && nextNextWord != null){
+                    if (candidate.getOperator() == Operator.FORWARD_MERGE && nextWord != null) {
                         root = checkAnalysisAndSetRoot(word.getName() + nextWord.getName());
-                        nextRoot = checkAnalysisAndSetRoot(nextNextWord.getName());
+                        if(nextNextWord != null) {
+                            nextRoot = checkAnalysisAndSetRoot(nextNextWord.getName());
+                        }
                     }
                     if (previousRoot != null) {
                         if (candidate.getOperator() == Operator.SPLIT){
