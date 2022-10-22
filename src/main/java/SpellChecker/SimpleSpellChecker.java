@@ -16,8 +16,10 @@ public class SimpleSpellChecker implements SpellChecker {
     private HashMap<String, String> mergedWords = new HashMap<>();
     private HashMap<String, String> splitWords = new HashMap<>();
     private static final ArrayList<String> shortcuts = new ArrayList<>(Arrays.asList("cc", "cm2", "cm", "gb", "ghz", "gr", "gram", "hz", "inc", "inch", "inç",
-            "kg", "kw", "kva", "litre", "lt", "m2", "m3", "mah", "mb", "metre", "mg", "mhz", "ml", "mm", "mp", "ms",
-            "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp"));
+            "kg", "kw", "kva", "litre", "lt", "m2", "m3", "mah", "mb", "metre", "mg", "mhz", "ml", "mm", "mp", "ms", "kb", "mb", "gb", "tb", "pb", "kbps",
+            "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp", "oz", "rpm", "dpi", "ppm", "ohm", "kwh", "kcal", "kbit", "mbit", "gbit", "bit", "byte",
+            "mbps", "gbps", "cm3", "mm2", "mm3", "khz", "ft", "db", "sn"));
+    private static final ArrayList<String> conditionalShortcuts = new ArrayList<>(Arrays.asList("g", "v", "m", "l", "w", "s"));
 
     /**
      * The generateCandidateList method takes a String as an input. Firstly, it creates a String consists of lowercase Turkish letters
@@ -109,7 +111,7 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param sentence {@link Sentence} type input.
      * @return Sentence result.
      */
-    public Sentence spellCheck(Sentence sentence){
+    public Sentence spellCheck(Sentence sentence) {
         Word word, newWord;
         int randomCandidate;
         Random random = new Random();
@@ -169,7 +171,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return result;
     }
 
-    protected boolean forcedMisspellCheck(Word word, Sentence result){
+    protected boolean forcedMisspellCheck(Word word, Sentence result) {
         String forcedReplacement = fsm.getDictionary().getCorrectForm(word.getName());
         if (forcedReplacement != null){
             result.addWord(new Word(forcedReplacement));
@@ -178,7 +180,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord){
+    protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord) {
         if (previousWord != null){
             String forcedReplacement = getCorrectForm(result.getWord(result.wordCount() - 1).getName() + " " + word.getName(), mergedWords);
             if (forcedReplacement != null) {
@@ -189,7 +191,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord){
+    protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord) {
         if (nextWord != null){
             String forcedReplacement = getCorrectForm(word.getName() + " " + nextWord.getName(), mergedWords);
             if (forcedReplacement != null) {
@@ -200,13 +202,13 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected void addSplitWords(String multiWord, Sentence result){
+    protected void addSplitWords(String multiWord, Sentence result) {
         String[] words = multiWord.split(" ");
         result.addWord(new Word(words[0]));
         result.addWord(new Word(words[1]));
     }
 
-    protected boolean forcedSplitCheck(Word word, Sentence result){
+    protected boolean forcedSplitCheck(Word word, Sentence result) {
         String forcedReplacement = getCorrectForm(word.getName(), splitWords);
         if (forcedReplacement != null){
             addSplitWords(forcedReplacement, result);
@@ -215,13 +217,20 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedShortcutCheck(Word word, Sentence result){
-        String shortcutRegex = "[0-9]+(" + shortcuts.get(0);
+    protected boolean forcedShortcutCheck(Word word, Sentence result) {
+        String shortcutRegex = "([1-9][0-9]*|[0])([.]|[,][0-9]*)?(" + shortcuts.get(0);
         for (int i = 1; i < shortcuts.size(); i++){
             shortcutRegex += "|" + shortcuts.get(i);
         }
         shortcutRegex += ")";
-        if (word.getName().matches(shortcutRegex)){
+
+        String conditionalShortcutRegex = "([1-9][0-9]{0,2}|[0])([.]|[,][0-9]*)?(" + conditionalShortcuts.get(0);
+        for (int i = 1; i < conditionalShortcuts.size(); i++){
+            conditionalShortcutRegex += "|" + conditionalShortcuts.get(i);
+        }
+        conditionalShortcutRegex += ")";
+
+        if (word.getName().matches(shortcutRegex) || word.getName().matches(conditionalShortcutRegex)) {
             AbstractMap.SimpleEntry<String, String> pair = getSplitPair(word);
             result.addWord(new Word(pair.getKey()));
             result.addWord(new Word(pair.getValue()));
@@ -293,18 +302,18 @@ public class SimpleSpellChecker implements SpellChecker {
         }
     }
 
-    protected String getCorrectForm(String wordName, HashMap<String, String> dictionary){
+    protected String getCorrectForm(String wordName, HashMap<String, String> dictionary) {
         if (dictionary.containsKey(wordName)){
             return dictionary.get(wordName);
         }
         return null;
     }
 
-    private AbstractMap.SimpleEntry<String, String> getSplitPair(Word word){
+    private AbstractMap.SimpleEntry<String, String> getSplitPair(Word word) {
         String key = "";
         int j;
         for (j = 0; j < word.getName().length(); j++){
-            if (word.getName().charAt(j) >= '0' && word.getName().charAt(j) <= '9') {
+            if (word.getName().charAt(j) >= '0' && word.getName().charAt(j) <= '9' || word.getName().charAt(j) == '.' || word.getName().charAt(j) == ',') {
                 key += word.getName().charAt(j);
             } else {
                 break;
