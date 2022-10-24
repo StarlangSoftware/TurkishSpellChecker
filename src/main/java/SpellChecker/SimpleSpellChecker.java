@@ -218,13 +218,13 @@ public class SimpleSpellChecker implements SpellChecker {
     }
 
     protected boolean forcedShortcutCheck(Word word, Sentence result) {
-        String shortcutRegex = "([1-9][0-9]*|[0])([.]|[,][0-9]*)?(" + shortcuts.get(0);
+        String shortcutRegex = "(([1-9][0-9]*)|[0])(([.]|[,])[0-9]*)?(" + shortcuts.get(0);
         for (int i = 1; i < shortcuts.size(); i++){
             shortcutRegex += "|" + shortcuts.get(i);
         }
         shortcutRegex += ")";
 
-        String conditionalShortcutRegex = "([1-9][0-9]{0,2}|[0])([.]|[,][0-9]*)?(" + conditionalShortcuts.get(0);
+        String conditionalShortcutRegex = "(([1-9][0-9]{0,2})|[0])(([.]|[,])[0-9]*)?(" + conditionalShortcuts.get(0);
         for (int i = 1; i < conditionalShortcuts.size(); i++){
             conditionalShortcutRegex += "|" + conditionalShortcuts.get(i);
         }
@@ -279,6 +279,7 @@ public class SimpleSpellChecker implements SpellChecker {
     private void loadDictionaries() {
         String line;
         String[] list;
+        String result;
         try{
             BufferedReader mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
             BufferedReader splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
@@ -292,8 +293,12 @@ public class SimpleSpellChecker implements SpellChecker {
 
             line = splitReader.readLine();
             while (line != null) {
+                result = "";
                 list = line.split(" ");
-                splitWords.put(list[0], list[1] + " " + list[2]);
+                for (int i = 1; i < list.length; i++) {
+                    result += list[i] + " ";
+                }
+                splitWords.put(list[0], result);
                 line = splitReader.readLine();
             }
         }
