@@ -258,7 +258,7 @@ public class SimpleSpellChecker implements SpellChecker {
                     }
                     if(txtWord != null && !txtWord.isCode()) {
                         result.addWord(new Word(newWordName));
-                        if(wordName.endsWith("da")) {
+                        if(TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
                             result.addWord(new Word("da"));
                         } else {
                             result.addWord(new Word("de"));

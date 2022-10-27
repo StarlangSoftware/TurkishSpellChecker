@@ -38,7 +38,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index){
         if (index < sentence.wordCount()){
             String wordName = sentence.getWord(index).getName();
-            if(wordName.matches("(\\D*\\d\\D*){2,}")) {
+            if(wordName.matches("(\\w*\\d\\w*){2,}")) {
                 return sentence.getWord(index);
             }
             FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
