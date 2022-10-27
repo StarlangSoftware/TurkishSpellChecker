@@ -37,7 +37,11 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      */
     private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index){
         if (index < sentence.wordCount()){
-            FsmParseList fsmParses = fsm.morphologicalAnalysis(sentence.getWord(index).getName());
+            String wordName = sentence.getWord(index).getName();
+            if(wordName.matches("(\\D*\\d\\D*){2,}")) {
+                return sentence.getWord(index);
+            }
+            FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
             if (fsmParses.size() != 0){
                 if (rootNGram){
                     return fsmParses.getParseWithLongestRootWord().getWord();
@@ -117,20 +121,20 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (forcedBackwardMergeCheck(word, result, previousWord)){
+            if (forcedBackwardMergeCheck(word, result, previousWord) || forcedSuffixMergeCheck(word, result, previousWord)) {
                 previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
                 root = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 1);
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (forcedForwardMergeCheck(word, result, nextWord)){
+            if (forcedForwardMergeCheck(word, result, nextWord) || forcedHyphenMergeCheck(word, result, previousWord, nextWord)) {
                 i++;
                 previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
                 root = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 1);
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutCheck(word, result)){
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result)) {
                 previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
                 root = nextRoot;
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
@@ -185,7 +189,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     i++;
                 }
                 if (bestCandidate.getOperator() == Operator.BACKWARD_MERGE) {
-                    result.replaceWord(i - 1, new Word(bestCandidate.getName()));
+                    result.replaceWord(result.wordCount() - 1, new Word(bestCandidate.getName()));
                 } else{
                     if (bestCandidate.getOperator() == Operator.SPLIT){
                         addSplitWords(bestCandidate.getName(), result);
