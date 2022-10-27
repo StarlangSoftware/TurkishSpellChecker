@@ -2,11 +2,11 @@ package SpellChecker;
 
 import Corpus.Sentence;
 import Dictionary.Word;
+import Dictionary.TxtWord;
 import Language.TurkishLanguage;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Util.FileUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -127,14 +127,14 @@ public class SimpleSpellChecker implements SpellChecker {
             if (i < sentence.wordCount() - 1){
                 nextWord = sentence.getWord(i + 1);
             }
-            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord)){
+            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord) || forcedSuffixMergeCheck(word, result, previousWord)){
                 continue;
             }
-            if (forcedForwardMergeCheck(word, result, nextWord)){
+            if (forcedForwardMergeCheck(word, result, nextWord) || forcedHyphenMergeCheck(word, result, previousWord, nextWord)){
                 i++;
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutCheck(word, result)){
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result)){
                 continue;
             }
             FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
@@ -150,7 +150,7 @@ public class SimpleSpellChecker implements SpellChecker {
                     randomCandidate = random.nextInt(candidates.size());
                     newWord = new Word(candidates.get(randomCandidate).getName());
                     if (candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE){
-                        result.replaceWord(i - 1, newWord);
+                        result.replaceWord(result.wordCount() - 1, newWord);
                         continue;
                     }
                     if (candidates.get(randomCandidate).getOperator() == Operator.FORWARD_MERGE){
@@ -217,7 +217,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedShortcutCheck(Word word, Sentence result) {
+    protected boolean forcedShortcutSplitCheck(Word word, Sentence result) {
         String shortcutRegex = "(([1-9][0-9]*)|[0])(([.]|[,])[0-9]*)?(" + shortcuts.get(0);
         for (int i = 1; i < shortcuts.size(); i++){
             shortcutRegex += "|" + shortcuts.get(i);
@@ -235,6 +235,73 @@ public class SimpleSpellChecker implements SpellChecker {
             result.addWord(new Word(pair.getKey()));
             result.addWord(new Word(pair.getValue()));
             return true;
+        }
+        return false;
+    }
+
+    protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
+        String wordName = word.getName();
+        if (wordName.endsWith("da") || wordName.endsWith("de")) {
+            if(fsm.morphologicalAnalysis(wordName).size() == 0) {
+                String newWordName = wordName.substring(0, wordName.length() - 2);
+                FsmParseList analysis = fsm.morphologicalAnalysis(newWordName);
+                if (analysis.size() > 0) {
+                    TxtWord txtWord = (TxtWord)fsm.getDictionary().getWord(analysis.getParseWithLongestRootWord().getWord().getName());
+                    if(txtWord != null && txtWord.isProperNoun()) {
+                        if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
+                            result.addWord(new Word(newWordName + "'" + "da"));
+                        }
+                        else {
+                            result.addWord(new Word(newWordName + "'" + "de"));
+                        }
+                        return true;
+                    }
+                    if(txtWord != null && !txtWord.isCode()) {
+                        result.addWord(new Word(newWordName));
+                        if(wordName.endsWith("da")) {
+                            result.addWord(new Word("da"));
+                        } else {
+                            result.addWord(new Word("de"));
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean forcedSuffixMergeCheck(Word word, Sentence result, Word previousWord) {
+        ArrayList<String> liList = new ArrayList<>(Arrays.asList("li", "lı", "lu", "lü"));
+        ArrayList<String> likList = new ArrayList<>(Arrays.asList("lik", "lık", "luk", "lük"));
+        if(liList.contains(word.getName()) || likList.contains(word.getName())) {
+            if(previousWord != null && previousWord.getName().matches("[0-9]+")) {
+                for (String suffix: liList) {
+                    if (word.getName().length() == 2 && fsm.morphologicalAnalysis(previousWord.getName() + "'" + suffix).size() > 0) {
+                        result.replaceWord(result.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
+                        return true;
+                    }
+                }
+                for (String suffix: likList) {
+                    if (word.getName().length() == 3 && fsm.morphologicalAnalysis(previousWord.getName() + "'" + suffix).size() > 0) {
+                        result.replaceWord(result.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean forcedHyphenMergeCheck(Word word, Sentence result, Word previousWord, Word nextWord) {
+        if(word.getName().equals("-") || word.getName().equals("–") || word.getName().equals("—")) {
+            if(previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-Z]+") && nextWord.getName().matches("[a-zA-Z]+")) {
+                String newWordName = previousWord.getName() + "-" + nextWord.getName();
+                if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
+                    result.replaceWord(result.wordCount() - 1, new Word(newWordName));
+                    return true;
+                }
+            }
         }
         return false;
     }
