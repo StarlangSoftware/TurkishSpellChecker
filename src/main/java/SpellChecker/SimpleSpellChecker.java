@@ -295,7 +295,7 @@ public class SimpleSpellChecker implements SpellChecker {
 
     protected boolean forcedHyphenMergeCheck(Word word, Sentence result, Word previousWord, Word nextWord) {
         if(word.getName().equals("-") || word.getName().equals("–") || word.getName().equals("—")) {
-            if(previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-Z]+") && nextWord.getName().matches("[a-zA-Z]+")) {
+            if(previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+") && nextWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+")) {
                 String newWordName = previousWord.getName() + "-" + nextWord.getName();
                 if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
                     result.replaceWord(result.wordCount() - 1, new Word(newWordName));
