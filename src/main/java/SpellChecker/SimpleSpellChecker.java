@@ -2,11 +2,11 @@ package SpellChecker;
 
 import Corpus.Sentence;
 import Dictionary.Word;
+import Dictionary.TxtWord;
 import Language.TurkishLanguage;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Util.FileUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -16,8 +16,10 @@ public class SimpleSpellChecker implements SpellChecker {
     private HashMap<String, String> mergedWords = new HashMap<>();
     private HashMap<String, String> splitWords = new HashMap<>();
     private static final ArrayList<String> shortcuts = new ArrayList<>(Arrays.asList("cc", "cm2", "cm", "gb", "ghz", "gr", "gram", "hz", "inc", "inch", "inç",
-            "kg", "kw", "kva", "litre", "lt", "m2", "m3", "mah", "mb", "metre", "mg", "mhz", "ml", "mm", "mp", "ms",
-            "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp"));
+            "kg", "kw", "kva", "litre", "lt", "m2", "m3", "mah", "mb", "metre", "mg", "mhz", "ml", "mm", "mp", "ms", "kb", "mb", "gb", "tb", "pb", "kbps",
+            "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp", "oz", "rpm", "dpi", "ppm", "ohm", "kwh", "kcal", "kbit", "mbit", "gbit", "bit", "byte",
+            "mbps", "gbps", "cm3", "mm2", "mm3", "khz", "ft", "db", "sn"));
+    private static final ArrayList<String> conditionalShortcuts = new ArrayList<>(Arrays.asList("g", "v", "m", "l", "w", "s"));
 
     /**
      * The generateCandidateList method takes a String as an input. Firstly, it creates a String consists of lowercase Turkish letters
@@ -109,7 +111,7 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param sentence {@link Sentence} type input.
      * @return Sentence result.
      */
-    public Sentence spellCheck(Sentence sentence){
+    public Sentence spellCheck(Sentence sentence) {
         Word word, newWord;
         int randomCandidate;
         Random random = new Random();
@@ -125,14 +127,14 @@ public class SimpleSpellChecker implements SpellChecker {
             if (i < sentence.wordCount() - 1){
                 nextWord = sentence.getWord(i + 1);
             }
-            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord)){
+            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord) || forcedSuffixMergeCheck(word, result, previousWord)){
                 continue;
             }
-            if (forcedForwardMergeCheck(word, result, nextWord)){
+            if (forcedForwardMergeCheck(word, result, nextWord) || forcedHyphenMergeCheck(word, result, previousWord, nextWord)){
                 i++;
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutCheck(word, result)){
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result)){
                 continue;
             }
             FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
@@ -148,7 +150,7 @@ public class SimpleSpellChecker implements SpellChecker {
                     randomCandidate = random.nextInt(candidates.size());
                     newWord = new Word(candidates.get(randomCandidate).getName());
                     if (candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE){
-                        result.replaceWord(i - 1, newWord);
+                        result.replaceWord(result.wordCount() - 1, newWord);
                         continue;
                     }
                     if (candidates.get(randomCandidate).getOperator() == Operator.FORWARD_MERGE){
@@ -169,7 +171,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return result;
     }
 
-    protected boolean forcedMisspellCheck(Word word, Sentence result){
+    protected boolean forcedMisspellCheck(Word word, Sentence result) {
         String forcedReplacement = fsm.getDictionary().getCorrectForm(word.getName());
         if (forcedReplacement != null){
             result.addWord(new Word(forcedReplacement));
@@ -178,7 +180,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord){
+    protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord) {
         if (previousWord != null){
             String forcedReplacement = getCorrectForm(result.getWord(result.wordCount() - 1).getName() + " " + word.getName(), mergedWords);
             if (forcedReplacement != null) {
@@ -189,7 +191,7 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord){
+    protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord) {
         if (nextWord != null){
             String forcedReplacement = getCorrectForm(word.getName() + " " + nextWord.getName(), mergedWords);
             if (forcedReplacement != null) {
@@ -200,13 +202,13 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected void addSplitWords(String multiWord, Sentence result){
+    protected void addSplitWords(String multiWord, Sentence result) {
         String[] words = multiWord.split(" ");
         result.addWord(new Word(words[0]));
         result.addWord(new Word(words[1]));
     }
 
-    protected boolean forcedSplitCheck(Word word, Sentence result){
+    protected boolean forcedSplitCheck(Word word, Sentence result) {
         String forcedReplacement = getCorrectForm(word.getName(), splitWords);
         if (forcedReplacement != null){
             addSplitWords(forcedReplacement, result);
@@ -215,17 +217,91 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedShortcutCheck(Word word, Sentence result){
-        String shortcutRegex = "[0-9]+(" + shortcuts.get(0);
+    protected boolean forcedShortcutSplitCheck(Word word, Sentence result) {
+        String shortcutRegex = "(([1-9][0-9]*)|[0])(([.]|[,])[0-9]*)?(" + shortcuts.get(0);
         for (int i = 1; i < shortcuts.size(); i++){
             shortcutRegex += "|" + shortcuts.get(i);
         }
         shortcutRegex += ")";
-        if (word.getName().matches(shortcutRegex)){
+
+        String conditionalShortcutRegex = "(([1-9][0-9]{0,2})|[0])(([.]|[,])[0-9]*)?(" + conditionalShortcuts.get(0);
+        for (int i = 1; i < conditionalShortcuts.size(); i++){
+            conditionalShortcutRegex += "|" + conditionalShortcuts.get(i);
+        }
+        conditionalShortcutRegex += ")";
+
+        if (word.getName().matches(shortcutRegex) || word.getName().matches(conditionalShortcutRegex)) {
             AbstractMap.SimpleEntry<String, String> pair = getSplitPair(word);
             result.addWord(new Word(pair.getKey()));
             result.addWord(new Word(pair.getValue()));
             return true;
+        }
+        return false;
+    }
+
+    protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
+        String wordName = word.getName();
+        if (wordName.endsWith("da") || wordName.endsWith("de")) {
+            if(fsm.morphologicalAnalysis(wordName).size() == 0) {
+                String newWordName = wordName.substring(0, wordName.length() - 2);
+                FsmParseList analysis = fsm.morphologicalAnalysis(newWordName);
+                if (analysis.size() > 0) {
+                    TxtWord txtWord = (TxtWord)fsm.getDictionary().getWord(analysis.getParseWithLongestRootWord().getWord().getName());
+                    if(txtWord != null && txtWord.isProperNoun()) {
+                        if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
+                            result.addWord(new Word(newWordName + "'" + "da"));
+                        }
+                        else {
+                            result.addWord(new Word(newWordName + "'" + "de"));
+                        }
+                        return true;
+                    }
+                    if(txtWord != null && !txtWord.isCode()) {
+                        result.addWord(new Word(newWordName));
+                        if(TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
+                            result.addWord(new Word("da"));
+                        } else {
+                            result.addWord(new Word("de"));
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean forcedSuffixMergeCheck(Word word, Sentence result, Word previousWord) {
+        ArrayList<String> liList = new ArrayList<>(Arrays.asList("li", "lı", "lu", "lü"));
+        ArrayList<String> likList = new ArrayList<>(Arrays.asList("lik", "lık", "luk", "lük"));
+        if(liList.contains(word.getName()) || likList.contains(word.getName())) {
+            if(previousWord != null && previousWord.getName().matches("[0-9]+")) {
+                for (String suffix: liList) {
+                    if (word.getName().length() == 2 && fsm.morphologicalAnalysis(previousWord.getName() + "'" + suffix).size() > 0) {
+                        result.replaceWord(result.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
+                        return true;
+                    }
+                }
+                for (String suffix: likList) {
+                    if (word.getName().length() == 3 && fsm.morphologicalAnalysis(previousWord.getName() + "'" + suffix).size() > 0) {
+                        result.replaceWord(result.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean forcedHyphenMergeCheck(Word word, Sentence result, Word previousWord, Word nextWord) {
+        if(word.getName().equals("-") || word.getName().equals("–") || word.getName().equals("—")) {
+            if(previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-Z]+") && nextWord.getName().matches("[a-zA-Z]+")) {
+                String newWordName = previousWord.getName() + "-" + nextWord.getName();
+                if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
+                    result.replaceWord(result.wordCount() - 1, new Word(newWordName));
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -270,6 +346,7 @@ public class SimpleSpellChecker implements SpellChecker {
     private void loadDictionaries() {
         String line;
         String[] list;
+        String result;
         try{
             BufferedReader mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
             BufferedReader splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
@@ -283,8 +360,12 @@ public class SimpleSpellChecker implements SpellChecker {
 
             line = splitReader.readLine();
             while (line != null) {
+                result = "";
                 list = line.split(" ");
-                splitWords.put(list[0], list[1] + " " + list[2]);
+                for (int i = 1; i < list.length; i++) {
+                    result += list[i] + " ";
+                }
+                splitWords.put(list[0], result);
                 line = splitReader.readLine();
             }
         }
@@ -293,18 +374,18 @@ public class SimpleSpellChecker implements SpellChecker {
         }
     }
 
-    protected String getCorrectForm(String wordName, HashMap<String, String> dictionary){
+    protected String getCorrectForm(String wordName, HashMap<String, String> dictionary) {
         if (dictionary.containsKey(wordName)){
             return dictionary.get(wordName);
         }
         return null;
     }
 
-    private AbstractMap.SimpleEntry<String, String> getSplitPair(Word word){
+    private AbstractMap.SimpleEntry<String, String> getSplitPair(Word word) {
         String key = "";
         int j;
         for (j = 0; j < word.getName().length(); j++){
-            if (word.getName().charAt(j) >= '0' && word.getName().charAt(j) <= '9') {
+            if (word.getName().charAt(j) >= '0' && word.getName().charAt(j) <= '9' || word.getName().charAt(j) == '.' || word.getName().charAt(j) == ',') {
                 key += word.getName().charAt(j);
             } else {
                 break;
