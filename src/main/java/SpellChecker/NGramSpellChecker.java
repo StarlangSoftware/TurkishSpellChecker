@@ -5,8 +5,8 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
-
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
@@ -35,24 +35,37 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      * @param index Index of the word
      * @return If the word is misspelled, null; otherwise the longest root word of the possible analyses.
      */
-    private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index){
-        if (index < sentence.wordCount()){
+    private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index) {
+        if (index < sentence.wordCount()) {
             String wordName = sentence.getWord(index).getName();
-            if(wordName.matches("(\\w*\\d\\w*){2,}")) {
+            if((wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
+                    && !wordName.contains("'")) || wordName.length() <= 3) {
+                System.out.println("Word " + wordName + " is not checked.");
                 return sentence.getWord(index);
             }
             FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
-            if (fsmParses.size() != 0){
-                if (rootNGram){
+            if (fsmParses.size() != 0) {
+                if (rootNGram) {
                     return fsmParses.getParseWithLongestRootWord().getWord();
                 } else {
                     return sentence.getWord(index);
                 }
             }
+            else {
+                Word upperCaseWord = new Word(wordName.substring(0, 1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1));
+                FsmParseList upperCaseFsmParses = fsm.morphologicalAnalysis(upperCaseWord.getName());
+                if (upperCaseFsmParses.size() != 0) {
+                    if (rootNGram) {
+                        return upperCaseFsmParses.getParseWithLongestRootWord().getWord();
+                    } else {
+                        return upperCaseWord;
+                    }
+                }
+            }
         }
         return null;
     }
-    private Word checkAnalysisAndSetRoot(String word){
+    private Word checkAnalysisAndSetRoot(String word) {
         FsmParseList fsmParses = fsm.morphologicalAnalysis(word);
         if (fsmParses.size() != 0){
             if (rootNGram){
@@ -64,11 +77,11 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         return null;
     }
 
-    public void setThreshold(double threshold){
+    public void setThreshold(double threshold) {
         this.threshold = threshold;
     }
 
-    private double getProbability(String word1, String word2){
+    private double getProbability(String word1, String word2) {
         return nGram.getProbability(word1, word2);
     }
 
