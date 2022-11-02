@@ -23,7 +23,7 @@ public class NGramSpellCheckerTest {
     public void testSpellCheck() {
         Sentence[] original = {new Sentence("demokratik cumhuriyet en kıymetli varlığımızdır"),
                 new Sentence("bu tablodaki değerler zedelenmeyecektir"),
-                new Sentence("milliyet'in geleneksel yılın sporcusu anketi 43. yaşını doldurdu"),
+                new Sentence("vakfın geleneksel yılın sporcusu anketi 43. yaşını doldurdu"),
                 new Sentence("demokrasinin icadı bu ayrımı bulandırdı"),
                 new Sentence("dışişleri müsteşarı Öymen'in 1997'nin ilk aylarında Bağdat'a gitmesi öngörülüyor"),
                 new Sentence("büyüdü , palazlandı , devleti ele geçirdi"),
@@ -36,7 +36,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("")};
         Sentence[] modified = {new Sentence("demokratik cumhüriyet rn kımetli varlıgımızdır"),
                 new Sentence("bu tblodaki değerler zedelenmeyecektir"),
-                new Sentence("milliyet'in geeneksel yılin spoşcusu ankşti 43. yeşını doldürdu"),
+                new Sentence("vakfın geeneksel yılin spoşcusu ankşti 43. yeşını doldürdu"),
                 new Sentence("demokrasinin icşdı buf ayrmıı bulandürdı"),
                 new Sentence("dışişleri mütseşarı Öymen'in 1997'nin iljk aylğrında Bağdat'a gitmesi öngörülüyor"),
                 new Sentence("büyüdü , palazandı , devltei eöe geçridi"),
