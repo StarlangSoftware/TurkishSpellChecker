@@ -38,8 +38,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index) {
         if (index < sentence.wordCount()) {
             String wordName = sentence.getWord(index).getName();
-            if((wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
-                    && !wordName.contains("'")) || wordName.length() <= 3) {
+            if(wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
+                    && !wordName.contains("'")) {
                 return sentence.getWord(index);
             }
             FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
@@ -152,10 +152,13 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (root == null) {
-                candidates = candidateList(word);
+            if (root == null || (word.getName().length() <= 3 && fsm.morphologicalAnalysis(word.getName()).size() == 0)) {
+                candidates = new ArrayList<>();
+                if(root == null){
+                    candidates.addAll(candidateList(word));
+                    candidates.addAll(splitCandidatesList(word));
+                }
                 candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
-                candidates.addAll(splitCandidatesList(word));
                 bestCandidate = new Candidate(word.getName(), Operator.NO_CHANGE);
                 bestRoot = word;
                 bestProbability = threshold;
