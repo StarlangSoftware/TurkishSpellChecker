@@ -20,6 +20,7 @@ public class SimpleSpellChecker implements SpellChecker {
             "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp", "oz", "rpm", "dpi", "ppm", "ohm", "kwh", "kcal", "kbit", "mbit", "gbit", "bit", "byte",
             "mbps", "gbps", "cm3", "mm2", "mm3", "khz", "ft", "db", "sn"));
     private static final ArrayList<String> conditionalShortcuts = new ArrayList<>(Arrays.asList("g", "v", "m", "l", "w", "s"));
+    private static final ArrayList<String> questionSuffixList = new ArrayList<>(Arrays.asList("mi", "mı", "mu", "mü", "miyim", "misin", "miyiz", "midir", "miydi", "mıyım", "mısın", "mıyız", "mıdır", "mıydı", "muyum", "musun", "muyuz", "mudur", "muydu", "müyüm", "müsün", "müyüz", "müdür", "müydü", "miydim", "miydin", "miydik", "miymiş", "mıydım", "mıydın", "mıydık", "mıymış", "muydum", "muydun", "muyduk", "muymuş", "müydüm", "müydün", "müydük", "müymüş", "misiniz", "mısınız", "musunuz", "müsünüz", "miyimdir", "misindir", "miyizdir", "miydiniz", "miydiler", "miymişim", "miymişiz", "mıyımdır", "mısındır", "mıyızdır", "mıydınız", "mıydılar", "mıymışım", "mıymışız", "muyumdur", "musundur", "muyuzdur", "muydunuz", "muydular", "muymuşum", "muymuşuz", "müyümdür", "müsündür", "müyüzdür", "müydünüz", "müydüler", "müymüşüm", "müymüşüz", "miymişsin", "miymişler", "mıymışsın", "mıymışlar", "muymuşsun", "muymuşlar", "müymüşsün", "müymüşler", "misinizdir", "mısınızdır", "musunuzdur", "müsünüzdür"));
 
     /**
      * The generateCandidateList method takes a String as an input. Firstly, it creates a String consists of lowercase Turkish letters
@@ -42,7 +43,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 Candidate swapped = new Candidate(word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2), Operator.SPELL_CHECK);
                 candidates.add(swapped);
             }
-            if (TurkishLanguage.LETTERS.contains("" + word.charAt(i)) || "wxq".contains("" + word.charAt(i))){
+            if (TurkishLanguage.LETTERS.contains("" + word.charAt(i)) || "wxq".contains("" + word.charAt(i))) {
                 Candidate deleted = new Candidate(word.substring(0, i) + word.substring(i + 1), Operator.SPELL_CHECK);
                 if (!deleted.getName().matches("\\d+")){
                     candidates.add(deleted);
@@ -127,18 +128,19 @@ public class SimpleSpellChecker implements SpellChecker {
             if (i < sentence.wordCount() - 1){
                 nextWord = sentence.getWord(i + 1);
             }
-            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord) || forcedSuffixMergeCheck(word, result, previousWord)){
+            if (forcedMisspellCheck(word, result) || forcedBackwardMergeCheck(word, result, previousWord) || forcedSuffixMergeCheck(word, result, previousWord)) {
                 continue;
             }
-            if (forcedForwardMergeCheck(word, result, nextWord) || forcedHyphenMergeCheck(word, result, previousWord, nextWord)){
+            if (forcedForwardMergeCheck(word, result, nextWord) || forcedHyphenMergeCheck(word, result, previousWord, nextWord)) {
                 i++;
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result)){
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
                 continue;
             }
             FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
-            if (fsmParseList.size() == 0) {
+            FsmParseList upperCaseFsmParseList = fsm.morphologicalAnalysis(word.getName().substring(0, 1).toUpperCase() + word.getName().substring(1));
+            if (fsmParseList.size() == 0 && upperCaseFsmParseList.size() == 0) {
                 candidates = mergedCandidatesList(previousWord, word, nextWord);
                 if (candidates.size() < 1) {
                     candidates = candidateList(word);
@@ -241,13 +243,17 @@ public class SimpleSpellChecker implements SpellChecker {
 
     protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
         String wordName = word.getName();
+        String capitalLetterWordName = wordName.substring(0,1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
         if (wordName.endsWith("da") || wordName.endsWith("de")) {
-            if(fsm.morphologicalAnalysis(wordName).size() == 0) {
+            if(fsm.morphologicalAnalysis(wordName).size() == 0 && fsm.morphologicalAnalysis(capitalLetterWordName).size() == 0) {
                 String newWordName = wordName.substring(0, wordName.length() - 2);
+                String capitalLetterNewWordName = capitalLetterWordName.substring(0, wordName.length() - 2);
                 FsmParseList analysis = fsm.morphologicalAnalysis(newWordName);
-                if (analysis.size() > 0) {
+                FsmParseList upperCaseAnalysis = fsm.morphologicalAnalysis(capitalLetterNewWordName);
+                if (analysis.size() > 0 || upperCaseAnalysis.size() > 0) {
                     TxtWord txtWord = (TxtWord)fsm.getDictionary().getWord(analysis.getParseWithLongestRootWord().getWord().getName());
-                    if(txtWord != null && txtWord.isProperNoun()) {
+                    TxtWord capitalLetterTxtWord = (TxtWord)fsm.getDictionary().getWord(upperCaseAnalysis.getParseWithLongestRootWord().getWord().getName());
+                    if(capitalLetterTxtWord != null && capitalLetterTxtWord.isProperNoun()) {
                         if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
                             result.addWord(new Word(newWordName + "'" + "da"));
                         }
@@ -259,8 +265,16 @@ public class SimpleSpellChecker implements SpellChecker {
                     if(txtWord != null && !txtWord.isCode()) {
                         result.addWord(new Word(newWordName));
                         if(TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
+                            if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
+                                result.addWord(new Word("de"));
+                            }
+                            else {
+                                result.addWord(new Word("da"));
+                            }
+                        } else if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
                             result.addWord(new Word("da"));
-                        } else {
+                        }
+                        else {
                             result.addWord(new Word("de"));
                         }
                         return true;
@@ -299,6 +313,24 @@ public class SimpleSpellChecker implements SpellChecker {
                 String newWordName = previousWord.getName() + "-" + nextWord.getName();
                 if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
                     result.replaceWord(result.wordCount() - 1, new Word(newWordName));
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean forcedQuestionSuffixSplitCheck(Word word, Sentence result) {
+        String wordName = word.getName();
+        if(fsm.morphologicalAnalysis(wordName).size() > 0) {
+            return false;
+        }
+        for (String questionSuffix: questionSuffixList) {
+            if(wordName.endsWith(questionSuffix)) {
+                String newWordName = wordName.substring(0, wordName.indexOf(questionSuffix));
+                if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
+                    result.addWord(new Word(newWordName));
+                    result.addWord(new Word(questionSuffix));
                     return true;
                 }
             }
@@ -350,14 +382,13 @@ public class SimpleSpellChecker implements SpellChecker {
         try{
             BufferedReader mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
             BufferedReader splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
-
             line = mergedReader.readLine();
             while (line != null) {
                 list = line.split(" ");
                 mergedWords.put(list[0] + " " + list[1], list[2]);
                 line = mergedReader.readLine();
             }
-
+            mergedReader.close();
             line = splitReader.readLine();
             while (line != null) {
                 result = "";
@@ -368,6 +399,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 splitWords.put(list[0], result);
                 line = splitReader.readLine();
             }
+            splitReader.close();
         }
         catch (IOException e) {
             e.printStackTrace();
