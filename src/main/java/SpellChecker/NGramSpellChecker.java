@@ -38,8 +38,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index) {
         if (index < sentence.wordCount()) {
             String wordName = sentence.getWord(index).getName();
-            if(wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
-                    && !wordName.contains("'")) {
+            if((wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
+                    && !wordName.contains("'")) || wordName.length() <= 3) {
                 return sentence.getWord(index);
             }
             FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
@@ -146,7 +146,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result)) {
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
                 previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
                 root = nextRoot;
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
@@ -154,7 +154,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
             }
             if (root == null || (word.getName().length() <= 3 && fsm.morphologicalAnalysis(word.getName()).size() == 0)) {
                 candidates = new ArrayList<>();
-                if(root == null){
+                if(root == null) {
                     candidates.addAll(candidateList(word));
                     candidates.addAll(splitCandidatesList(word));
                 }
