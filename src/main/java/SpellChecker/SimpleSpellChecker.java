@@ -243,42 +243,41 @@ public class SimpleSpellChecker implements SpellChecker {
 
     protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
         String wordName = word.getName();
-        String capitalLetterWordName = wordName.substring(0,1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
+        String capitalizedWordName = wordName.substring(0,1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
+        TxtWord txtWord = null;
         if (wordName.endsWith("da") || wordName.endsWith("de")) {
-            if(fsm.morphologicalAnalysis(wordName).size() == 0 && fsm.morphologicalAnalysis(capitalLetterWordName).size() == 0) {
+            if(fsm.morphologicalAnalysis(wordName).size() == 0 && fsm.morphologicalAnalysis(capitalizedWordName).size() == 0) {
                 String newWordName = wordName.substring(0, wordName.length() - 2);
-                String capitalLetterNewWordName = capitalLetterWordName.substring(0, wordName.length() - 2);
-                FsmParseList analysis = fsm.morphologicalAnalysis(newWordName);
-                FsmParseList upperCaseAnalysis = fsm.morphologicalAnalysis(capitalLetterNewWordName);
-                if (analysis.size() > 0 || upperCaseAnalysis.size() > 0) {
-                    TxtWord txtWord = (TxtWord)fsm.getDictionary().getWord(analysis.getParseWithLongestRootWord().getWord().getName());
-                    TxtWord capitalLetterTxtWord = (TxtWord)fsm.getDictionary().getWord(upperCaseAnalysis.getParseWithLongestRootWord().getWord().getName());
-                    if(capitalLetterTxtWord != null && capitalLetterTxtWord.isProperNoun()) {
-                        if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
-                            result.addWord(new Word(newWordName + "'" + "da"));
-                        }
-                        else {
-                            result.addWord(new Word(newWordName + "'" + "de"));
-                        }
-                        return true;
+                FsmParseList fsmParseList = fsm.morphologicalAnalysis(newWordName);
+                TxtWord txtNewWord = (TxtWord)fsm.getDictionary().getWord(newWordName.toLowerCase(new Locale("tr", "TR")));
+                if(txtNewWord != null && txtNewWord.isProperNoun()) {
+                    if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
+                        result.addWord(new Word(newWordName + "'" + "da"));
                     }
-                    if(txtWord != null && !txtWord.isCode()) {
-                        result.addWord(new Word(newWordName));
-                        if(TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
-                            if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
-                                result.addWord(new Word("de"));
-                            }
-                            else {
-                                result.addWord(new Word("da"));
-                            }
-                        } else if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
-                            result.addWord(new Word("da"));
-                        }
-                        else {
+                    else {
+                        result.addWord(new Word(newWordName + "'" + "de"));
+                    }
+                    return true;
+                }
+                if (fsmParseList.size() > 0) {
+                    txtWord = (TxtWord)fsm.getDictionary().getWord(fsmParseList.getParseWithLongestRootWord().getWord().getName());
+                }
+                if(txtWord != null && !txtWord.isCode()) {
+                    result.addWord(new Word(newWordName));
+                    if(TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
+                        if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
                             result.addWord(new Word("de"));
                         }
-                        return true;
+                        else {
+                            result.addWord(new Word("da"));
+                        }
+                    } else if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
+                        result.addWord(new Word("da"));
                     }
+                    else {
+                        result.addWord(new Word("de"));
+                    }
+                    return true;
                 }
             }
         }
@@ -327,8 +326,9 @@ public class SimpleSpellChecker implements SpellChecker {
         }
         for (String questionSuffix: questionSuffixList) {
             if(wordName.endsWith(questionSuffix)) {
-                String newWordName = wordName.substring(0, wordName.indexOf(questionSuffix));
-                if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
+                String newWordName = wordName.substring(0, wordName.lastIndexOf(questionSuffix));
+                TxtWord txtWord = (TxtWord)fsm.getDictionary().getWord(newWordName);
+                if(fsm.morphologicalAnalysis(newWordName).size() > 0 && txtWord != null && !txtWord.isCode()) {
                     result.addWord(new Word(newWordName));
                     result.addWord(new Word(questionSuffix));
                     return true;
