@@ -1,13 +1,15 @@
 package SpellChecker;
 
 import Corpus.Sentence;
-import Dictionary.Word;
 import Dictionary.TxtWord;
+import Dictionary.Word;
 import Language.TurkishLanguage;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Util.FileUtils;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
