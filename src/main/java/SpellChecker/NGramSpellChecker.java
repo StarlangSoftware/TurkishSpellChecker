@@ -10,8 +10,7 @@ import java.util.Locale;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
-    private boolean rootNGram;
-    private double threshold = 0.0;
+    private SpellCheckerParameter parameter;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
@@ -20,12 +19,16 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      *
      * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram {@link NGram} type input.
-     * @param rootNGram This parameter must be true, if the nGram is NGram generated from the root words; false otherwise.
      */
-    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, boolean rootNGram) {
+   public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
         super(fsm);
         this.nGram = nGram;
-        this.rootNGram = rootNGram;
+        parameter = new SpellCheckerParameter();
+    }
+    public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
+        super(fsm);
+        this.nGram = nGram;
+        this.parameter = parameter;
     }
 
     /**
@@ -44,7 +47,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
             }
             FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
             if (fsmParses.size() != 0) {
-                if (rootNGram) {
+                if (parameter.isRootNGram()) {
                     return fsmParses.getParseWithLongestRootWord().getWord();
                 } else {
                     return sentence.getWord(index);
@@ -54,7 +57,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 String upperCaseWordName = wordName.substring(0, 1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
                 FsmParseList upperCaseFsmParses = fsm.morphologicalAnalysis(upperCaseWordName);
                 if (upperCaseFsmParses.size() != 0) {
-                    if (rootNGram) {
+                    if (parameter.isRootNGram()) {
                         return upperCaseFsmParses.getParseWithLongestRootWord().getWord();
                     } else {
                         return sentence.getWord(index);
@@ -67,17 +70,13 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     private Word checkAnalysisAndSetRoot(String word) {
         FsmParseList fsmParses = fsm.morphologicalAnalysis(word);
         if (fsmParses.size() != 0){
-            if (rootNGram){
+            if (parameter.isRootNGram()){
                 return fsmParses.getParseWithLongestRootWord().getWord();
             } else {
                 return new Word(word);
             }
         }
         return null;
-    }
-
-    public void setThreshold(double threshold) {
-        this.threshold = threshold;
     }
 
     private double getProbability(String word1, String word2) {
@@ -146,11 +145,19 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result)) {
                 previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
                 root = nextRoot;
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
+            }
+            if(parameter.deMiCheck()) {
+                if (forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
+                    previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
+                    root = nextRoot;
+                    nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
+                    continue;
+                }
             }
             if (root == null || (word.getName().length() <= 3 && fsm.morphologicalAnalysis(word.getName()).size() == 0)) {
                 candidates = new ArrayList<>();
@@ -161,7 +168,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
                 bestCandidate = new Candidate(word.getName(), Operator.NO_CHANGE);
                 bestRoot = word;
-                bestProbability = threshold;
+                bestProbability = parameter.getThreshold();
                 for (Candidate candidate : candidates) {
                     if (candidate.getOperator() == Operator.SPELL_CHECK || candidate.getOperator() == Operator.MISSPELLED_REPLACE){
                         root = checkAnalysisAndSetRoot(candidate.getName());
