@@ -5,7 +5,6 @@ import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import Ngram.*;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 public class NGramSpellCheckerTest {
@@ -23,7 +22,7 @@ public class NGramSpellCheckerTest {
     public void testSpellCheck() {
         Sentence[] original = {new Sentence("demokratik cumhuriyet en kıymetli varlığımızdır"),
                 new Sentence("bu tablodaki değerler zedelenmeyecektir"),
-                new Sentence("vakfın geleneksel yılın sporcusu anketi 43. yaşını doldurdu"),
+                new Sentence("vakfın geleneksel yılın sporcusu anketi yeni yaşını doldurdu"),
                 new Sentence("demokrasinin icadı bu ayrımı bulandırdı"),
                 new Sentence("dışişleri müsteşarı Öymen'in 1997'nin ilk aylarında Bağdat'a gitmesi öngörülüyor"),
                 new Sentence("büyüdü , palazlandı , devleti ele geçirdi"),
@@ -33,21 +32,21 @@ public class NGramSpellCheckerTest {
                 new Sentence("son derece kısıtlı kelimeler çerçevesinde kendilerini uzun cümlelerle ifade edebiliyorlar"),
                 new Sentence("minibüs durağı"),
                 new Sentence("noter belgesi"),
-                new Sentence("")};
-        Sentence[] modified = {new Sentence("demokratik cumhüriyet rn kımetli varlıgımızdır"),
+                new Sentence("bu filmi daha önce görmemiş miydik diye sordu")};
+        Sentence[] modified = {new Sentence("demokratik cumhüriyet en kımetli varlıgımızdır"),
                 new Sentence("bu tblodaki değerler zedelenmeyecektir"),
-                new Sentence("vakfın geeneksel yılin spoşcusu ankşti 43. yeşını doldürdu"),
-                new Sentence("demokrasinin icşdı buf ayrmıı bulandürdı"),
+                new Sentence("vakfın geeneksel yılin spoşcusu ankşti yeni yeşını doldürdu"),
+                new Sentence("demokrasinin icşdı bu ayrmıı bulandürdı"),
                 new Sentence("dışişleri mütseşarı Öymen'in 1997'nin iljk aylğrında Bağdat'a gitmesi öngörülüyor"),
-                new Sentence("büyüdü , palazandı , devltei eöe geçridi"),
+                new Sentence("büyüdü , palazandı , devltei ele geçridi"),
                 new Sentence("her makenin cültte aklma sürdsi farlkıdır"),
-                new Sentence("yılın sno ayında 10 gazteci gözlatına alündı"),
-                new Sentence("iki piotun kulçandığı uçkata üir hotes görçv alyıor"),
+                new Sentence("yılın son ayında 10 gazteci gözlatına alündı"),
+                new Sentence("iki piotun kulçandığı uçkata bir hotes görçv alyıor"),
                 new Sentence("son deece kısütlı keilmeler çeçevesinde kendülerini uzuü cümllerle ifüde edbeiliyorlar"),
                 new Sentence("minibü durağı"),
                 new Sentence("ntoer belgesi"),
-                new Sentence("")};
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
+                new Sentence("bu filmi daha önce görmemişmiydik diye sordu")};
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, new SpellCheckerParameter());
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
         }
@@ -86,8 +85,8 @@ public class NGramSpellCheckerTest {
                 new Sentence("4 lı tahıl zirvesi İstanbul'da gerçekleşti"),
                 new Sentence("10 lük sistemden 100 lık sisteme geçiş yapılacak"),
                 new Sentence("play - off maçlarına çıkacak takımlar belli oldu"),
-                new Sentence("bu sno model ciha 24inç ekran büyüklüğünde ve 9kg ağırlıktadır")};
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, true);
+                new Sentence("bu son model ciha 24inç ekran büyüklüğünde ve 9kg ağırlıktadır")};
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, new SpellCheckerParameter());
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
         }
@@ -95,7 +94,9 @@ public class NGramSpellCheckerTest {
 
     @Test
     public void testSpellCheckSurfaceForm() {
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, false);
+        SpellCheckerParameter parameter = new SpellCheckerParameter();
+        parameter.setRootNGram(false);
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, parameter);
         assertEquals("noter hakkında", nGramSpellChecker.spellCheck(new Sentence("noter hakkınad")).toString());
         assertEquals("arçelik'in çamaşır", nGramSpellChecker.spellCheck(new Sentence("arçelik'in çamşaır")).toString());
         assertEquals("ruhsat yanında", nGramSpellChecker.spellCheck(new Sentence("ruhset yanında")).toString());

@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class SimpleSpellCheckerTest {
 
     @Test
-    public void testSpellCheck2() {
+    public void testSpellCheck() {
         Sentence[] original = {
                 new Sentence("yeni sezon başladı"),
                 new Sentence("sırtıkara adındaki canlı , bir balıktır"),
@@ -29,6 +29,7 @@ public class SimpleSpellCheckerTest {
                 new Sentence("4'lü tahıl zirvesi İstanbul'da gerçekleşti"),
                 new Sentence("10'luk sistemden 100'lük sisteme geçiş yapılacak"),
                 new Sentence("play-off maçlarına çıkacak takımlar belli oldu"),
+                new Sentence("bu filmi daha önce görmemiş miydik diye sordu"),
                 new Sentence("bu son model cihaz 24 inç ekran büyüklüğünde ve 9 kg ağırlıktadır")};
         Sentence[] modified = {
                 new Sentence("yenisezon başladı"),
@@ -45,6 +46,7 @@ public class SimpleSpellCheckerTest {
                 new Sentence("4 lı tahıl zirvesi İstanbul' da gerçekleşti"),
                 new Sentence("10 lük sistemden 100 lık sisteme geçiş yapılacak"),
                 new Sentence("play - off maçlarına çıkacak takımlar belli oldu"),
+                new Sentence("bu filmi daha önce görmemişmiydik diye sordu"),
                 new Sentence("bu son model ciha 24inç ekran büyüklüğünde ve 9kg ağırlıktadır")};
         FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
         SimpleSpellChecker simpleSpellChecker = new SimpleSpellChecker(fsm);
