@@ -38,7 +38,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index) {
         if (index < sentence.wordCount()) {
             String wordName = sentence.getWord(index).getName();
-            if(wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
+            if (wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
                     && !wordName.contains("'")) {
                 return sentence.getWord(index);
             }
@@ -154,7 +154,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
             }
             if (root == null || (word.getName().length() <= 3 && fsm.morphologicalAnalysis(word.getName()).size() == 0)) {
                 candidates = new ArrayList<>();
-                if(root == null){
+                if (root == null){
                     candidates.addAll(candidateList(word));
                     candidates.addAll(splitCandidatesList(word));
                 }
