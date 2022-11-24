@@ -248,11 +248,11 @@ public class SimpleSpellChecker implements SpellChecker {
         String capitalizedWordName = wordName.substring(0,1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
         TxtWord txtWord = null;
         if (wordName.endsWith("da") || wordName.endsWith("de")) {
-            if(fsm.morphologicalAnalysis(wordName).size() == 0 && fsm.morphologicalAnalysis(capitalizedWordName).size() == 0) {
+            if (fsm.morphologicalAnalysis(wordName).size() == 0 && fsm.morphologicalAnalysis(capitalizedWordName).size() == 0) {
                 String newWordName = wordName.substring(0, wordName.length() - 2);
                 FsmParseList fsmParseList = fsm.morphologicalAnalysis(newWordName);
                 TxtWord txtNewWord = (TxtWord)fsm.getDictionary().getWord(newWordName.toLowerCase(new Locale("tr", "TR")));
-                if(txtNewWord != null && txtNewWord.isProperNoun()) {
+                if (txtNewWord != null && txtNewWord.isProperNoun()) {
                     if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
                         result.addWord(new Word(newWordName + "'" + "da"));
                     }
@@ -264,16 +264,16 @@ public class SimpleSpellChecker implements SpellChecker {
                 if (fsmParseList.size() > 0) {
                     txtWord = (TxtWord)fsm.getDictionary().getWord(fsmParseList.getParseWithLongestRootWord().getWord().getName());
                 }
-                if(txtWord != null && !txtWord.isCode()) {
+                if (txtWord != null && !txtWord.isCode()) {
                     result.addWord(new Word(newWordName));
-                    if(TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
-                        if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
+                    if (TurkishLanguage.isBackVowel(Word.lastVowel(newWordName))) {
+                        if (txtWord.notObeysVowelHarmonyDuringAgglutination()) {
                             result.addWord(new Word("de"));
                         }
                         else {
                             result.addWord(new Word("da"));
                         }
-                    } else if(txtWord.notObeysVowelHarmonyDuringAgglutination()) {
+                    } else if (txtWord.notObeysVowelHarmonyDuringAgglutination()) {
                         result.addWord(new Word("da"));
                     }
                     else {
@@ -309,10 +309,10 @@ public class SimpleSpellChecker implements SpellChecker {
     }
 
     protected boolean forcedHyphenMergeCheck(Word word, Sentence result, Word previousWord, Word nextWord) {
-        if(word.getName().equals("-") || word.getName().equals("–") || word.getName().equals("—")) {
-            if(previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+") && nextWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+")) {
+        if (word.getName().equals("-") || word.getName().equals("–") || word.getName().equals("—")) {
+            if (previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+") && nextWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+")) {
                 String newWordName = previousWord.getName() + "-" + nextWord.getName();
-                if(fsm.morphologicalAnalysis(newWordName).size() > 0) {
+                if (fsm.morphologicalAnalysis(newWordName).size() > 0) {
                     result.replaceWord(result.wordCount() - 1, new Word(newWordName));
                     return true;
                 }
