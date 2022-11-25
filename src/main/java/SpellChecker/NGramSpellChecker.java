@@ -54,7 +54,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 }
             }
             else {
-                String upperCaseWordName = wordName.substring(0, 1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
+                String upperCaseWordName = Word.toCapital(wordName);
                 FsmParseList upperCaseFsmParses = fsm.morphologicalAnalysis(upperCaseWordName);
                 if (upperCaseFsmParses.size() != 0) {
                     if (parameter.isRootNGram()) {

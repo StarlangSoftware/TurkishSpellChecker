@@ -147,7 +147,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 continue;
             }
             FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
-            FsmParseList upperCaseFsmParseList = fsm.morphologicalAnalysis(word.getName().substring(0, 1).toUpperCase() + word.getName().substring(1));
+            FsmParseList upperCaseFsmParseList = fsm.morphologicalAnalysis(Word.toCapital(word.getName()));
             if (fsmParseList.size() == 0 && upperCaseFsmParseList.size() == 0) {
                 candidates = mergedCandidatesList(previousWord, word, nextWord);
                 if (candidates.size() < 1) {
