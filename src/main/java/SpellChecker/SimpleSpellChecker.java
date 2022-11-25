@@ -251,7 +251,7 @@ public class SimpleSpellChecker implements SpellChecker {
 
     protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
         String wordName = word.getName();
-        String capitalizedWordName = wordName.substring(0,1).toUpperCase(new Locale("tr", "TR")) + wordName.substring(1);
+        String capitalizedWordName = Word.toCapital(wordName);
         TxtWord txtWord = null;
         if (wordName.endsWith("da") || wordName.endsWith("de")) {
             if (fsm.morphologicalAnalysis(wordName).size() == 0 && fsm.morphologicalAnalysis(capitalizedWordName).size() == 0) {
@@ -259,7 +259,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 FsmParseList fsmParseList = fsm.morphologicalAnalysis(newWordName);
                 TxtWord txtNewWord = (TxtWord)fsm.getDictionary().getWord(newWordName.toLowerCase(new Locale("tr", "TR")));
                 if (txtNewWord != null && txtNewWord.isProperNoun()) {
-                    if(fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
+                    if (fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
                         result.addWord(new Word(newWordName + "'" + "da"));
                     }
                     else {
@@ -279,11 +279,13 @@ public class SimpleSpellChecker implements SpellChecker {
                         else {
                             result.addWord(new Word("da"));
                         }
-                    } else if (txtWord.notObeysVowelHarmonyDuringAgglutination()) {
-                        result.addWord(new Word("da"));
-                    }
-                    else {
-                        result.addWord(new Word("de"));
+                    } else {
+                        if (txtWord.notObeysVowelHarmonyDuringAgglutination()) {
+                            result.addWord(new Word("da"));
+                        }
+                        else {
+                            result.addWord(new Word("de"));
+                        }
                     }
                     return true;
                 }
@@ -329,14 +331,14 @@ public class SimpleSpellChecker implements SpellChecker {
 
     protected boolean forcedQuestionSuffixSplitCheck(Word word, Sentence result) {
         String wordName = word.getName();
-        if(fsm.morphologicalAnalysis(wordName).size() > 0) {
+        if (fsm.morphologicalAnalysis(wordName).size() > 0) {
             return false;
         }
         for (String questionSuffix: questionSuffixList) {
-            if(wordName.endsWith(questionSuffix)) {
+            if (wordName.endsWith(questionSuffix)) {
                 String newWordName = wordName.substring(0, wordName.lastIndexOf(questionSuffix));
                 TxtWord txtWord = (TxtWord)fsm.getDictionary().getWord(newWordName);
-                if(fsm.morphologicalAnalysis(newWordName).size() > 0 && txtWord != null && !txtWord.isCode()) {
+                if (fsm.morphologicalAnalysis(newWordName).size() > 0 && txtWord != null && !txtWord.isCode()) {
                     result.addWord(new Word(newWordName));
                     result.addWord(new Word(questionSuffix));
                     return true;
