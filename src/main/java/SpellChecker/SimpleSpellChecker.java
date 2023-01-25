@@ -31,6 +31,17 @@ public class SimpleSpellChecker implements SpellChecker {
             "mıymışlar", "muymuşsun", "muymuşlar", "müymüşsün", "müymüşler", "misinizdir", "mısınızdır", "musunuzdur", "müsünüzdür"));
 
     /**
+     * A constructor of {@link SimpleSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} as an input,
+     * assigns it to the fsm variable and calls the loadDictionaries method.
+     *
+     * @param fsm {@link FsmMorphologicalAnalyzer} type input.
+     */
+    public SimpleSpellChecker(FsmMorphologicalAnalyzer fsm) {
+        this.fsm = fsm;
+        loadDictionaries();
+    }
+
+    /**
      * The generateCandidateList method takes a String as an input. Firstly, it creates a String consists of lowercase Turkish letters
      * and an {@link ArrayList} candidates. Then, it loops i times where i ranges from 0 to the length of given word. It gets substring
      * from 0 to ith index and concatenates it with substring from i+1 to the last index as a new String called deleted. Then, adds
@@ -64,9 +75,7 @@ public class SimpleSpellChecker implements SpellChecker {
                     Candidate added = new Candidate(word.substring(0, i) + s.charAt(j) + word.substring(i), Operator.SPELL_CHECK);
                     candidates.add(added);
                 }
-
             }
-
         }
         return candidates;
     }
@@ -80,7 +89,7 @@ public class SimpleSpellChecker implements SpellChecker {
      * @param word Word input.
      * @return candidates {@link ArrayList}.
      */
-    public ArrayList<Candidate> candidateList(Word word) {
+    protected ArrayList<Candidate> candidateList(Word word, Sentence sentence) {
         ArrayList<Candidate> candidates;
         candidates = generateCandidateList(word.getName());
         for (int i = 0; i < candidates.size(); i++) {
@@ -96,17 +105,6 @@ public class SimpleSpellChecker implements SpellChecker {
             }
         }
         return candidates;
-    }
-
-    /**
-     * A constructor of {@link SimpleSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} as an input and
-     * assigns it to the fsm variable.
-     *
-     * @param fsm {@link FsmMorphologicalAnalyzer} type input.
-     */
-    public SimpleSpellChecker(FsmMorphologicalAnalyzer fsm) {
-        this.fsm = fsm;
-        loadDictionaries();
     }
 
     /**
@@ -151,7 +149,7 @@ public class SimpleSpellChecker implements SpellChecker {
             if (fsmParseList.size() == 0 && upperCaseFsmParseList.size() == 0) {
                 candidates = mergedCandidatesList(previousWord, word, nextWord);
                 if (candidates.size() < 1) {
-                    candidates = candidateList(word);
+                    candidates = candidateList(word, sentence);
                 }
                 if (candidates.size() < 1) {
                     candidates.addAll(splitCandidatesList(word));
@@ -181,6 +179,15 @@ public class SimpleSpellChecker implements SpellChecker {
         return result;
     }
 
+    /**
+     * Checks if the given word is a misspelled word according to the misspellings list,
+     * and if it is, then replaces it with its correct form in the given sentence.
+     *
+     * @param word the word to check for misspelling
+     * @param result the sentence that the word belongs to
+     *
+     * @return true if the word was corrected, false otherwise
+     */
     protected boolean forcedMisspellCheck(Word word, Sentence result) {
         String forcedReplacement = fsm.getDictionary().getCorrectForm(word.getName());
         if (forcedReplacement != null){
@@ -190,6 +197,16 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Checks if the given word and its preceding word need to be merged according to the merged list.
+     * If the merge is needed, the word and its preceding word are replaced with their merged form in the given sentence.
+     *
+     * @param word the word to check for merge
+     * @param result the sentence that the word belongs to
+     * @param previousWord the preceding word of the given word
+     *
+     * @return true if the word was merged, false otherwise
+     */
     protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord) {
         if (previousWord != null){
             String forcedReplacement = getCorrectForm(result.getWord(result.wordCount() - 1).getName() + " " + word.getName(), mergedWords);
@@ -201,6 +218,16 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Checks if the given word and its next word need to be merged according to the merged list.
+     * If the merge is needed, the word and its next word are replaced with their merged form in the given sentence.
+     *
+     * @param word the word to check for merge
+     * @param result the sentence that the word belongs to
+     * @param nextWord the next word of the given word
+     *
+     * @return true if the word was merged, false otherwise
+     */
     protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord) {
         if (nextWord != null){
             String forcedReplacement = getCorrectForm(word.getName() + " " + nextWord.getName(), mergedWords);
@@ -212,12 +239,27 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Given a multiword form, splits it and adds it to the given sentence.
+     *
+     * @param multiWord multiword form to split
+     * @param result the sentence to add the split words to
+     */
     protected void addSplitWords(String multiWord, Sentence result) {
         String[] words = multiWord.split(" ");
         result.addWord(new Word(words[0]));
         result.addWord(new Word(words[1]));
     }
 
+    /**
+     * Checks if the given word needs to be split according to the split list.
+     * If the split is needed, the word is replaced with its split form in the given sentence.
+     *
+     * @param word the word to check for split
+     * @param result the sentence that the word belongs to
+     *
+     * @return true if the word was split, false otherwise
+     */
     protected boolean forcedSplitCheck(Word word, Sentence result) {
         String forcedReplacement = getCorrectForm(word.getName(), splitWords);
         if (forcedReplacement != null){
@@ -227,20 +269,29 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Checks if the given word is a shortcut form, such as "5kg" or "2.5km".
+     * If it is, it splits the word into its number and unit form and adds them to the given sentence.
+     *
+     * @param word the word to check for shortcut split
+     * @param result the sentence that the word belongs to
+     *
+     * @return true if the word was split, false otherwise
+     */
     protected boolean forcedShortcutSplitCheck(Word word, Sentence result) {
-        String shortcutRegex = "(([1-9][0-9]*)|[0])(([.]|[,])[0-9]*)?(" + shortcuts.get(0);
+        StringBuilder shortcutRegex = new StringBuilder("(([1-9][0-9]*)|[0])(([.]|[,])[0-9]*)?(" + shortcuts.get(0));
         for (int i = 1; i < shortcuts.size(); i++){
-            shortcutRegex += "|" + shortcuts.get(i);
+            shortcutRegex.append("|").append(shortcuts.get(i));
         }
-        shortcutRegex += ")";
+        shortcutRegex.append(")");
 
-        String conditionalShortcutRegex = "(([1-9][0-9]{0,2})|[0])(([.]|[,])[0-9]*)?(" + conditionalShortcuts.get(0);
+        StringBuilder conditionalShortcutRegex = new StringBuilder("(([1-9][0-9]{0,2})|[0])(([.]|[,])[0-9]*)?(" + conditionalShortcuts.get(0));
         for (int i = 1; i < conditionalShortcuts.size(); i++){
-            conditionalShortcutRegex += "|" + conditionalShortcuts.get(i);
+            conditionalShortcutRegex.append("|").append(conditionalShortcuts.get(i));
         }
-        conditionalShortcutRegex += ")";
+        conditionalShortcutRegex.append(")");
 
-        if (word.getName().matches(shortcutRegex) || word.getName().matches(conditionalShortcutRegex)) {
+        if (word.getName().matches(shortcutRegex.toString()) || word.getName().matches(conditionalShortcutRegex.toString())) {
             AbstractMap.SimpleEntry<String, String> pair = getSplitPair(word);
             result.addWord(new Word(pair.getKey()));
             result.addWord(new Word(pair.getValue()));
@@ -249,6 +300,15 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Checks if the given word has a "da" or "de" suffix that needs to be split according to a predefined set of rules.
+     * If the split is needed, the word is replaced with its bare form and "da" or "de" in the given sentence.
+     *
+     * @param word the word to check for "da" or "de" split
+     * @param result the sentence that the word belongs to
+     *
+     * @return true if the word was split, false otherwise
+     */
     protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
         String wordName = word.getName();
         String capitalizedWordName = Word.toCapital(wordName);
@@ -294,20 +354,30 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
-    protected boolean forcedSuffixMergeCheck(Word word, Sentence result, Word previousWord) {
+    /**
+     * Checks if the given word is a suffix like 'li' or 'lik' that needs to be merged with its preceding word which is a number.
+     * If the merge is needed, the word and its preceding word are replaced with their merged form in the given sentence.
+     *
+     * @param word the word to check for merge
+     * @param sentence the sentence that the word belongs to
+     * @param previousWord the preceding word of the given word
+     *
+     * @return true if the word was merged, false otherwise
+     */
+    protected boolean forcedSuffixMergeCheck(Word word, Sentence sentence, Word previousWord) {
         ArrayList<String> liList = new ArrayList<>(Arrays.asList("li", "lı", "lu", "lü"));
         ArrayList<String> likList = new ArrayList<>(Arrays.asList("lik", "lık", "luk", "lük"));
         if (liList.contains(word.getName()) || likList.contains(word.getName())) {
             if (previousWord != null && previousWord.getName().matches("[0-9]+")) {
                 for (String suffix: liList) {
                     if (word.getName().length() == 2 && fsm.morphologicalAnalysis(previousWord.getName() + "'" + suffix).size() > 0) {
-                        result.replaceWord(result.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
+                        sentence.replaceWord(sentence.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
                         return true;
                     }
                 }
                 for (String suffix: likList) {
                     if (word.getName().length() == 3 && fsm.morphologicalAnalysis(previousWord.getName() + "'" + suffix).size() > 0) {
-                        result.replaceWord(result.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
+                        sentence.replaceWord(sentence.wordCount() - 1, new Word(previousWord.getName() + "'" + suffix));
                         return true;
                     }
                 }
@@ -316,6 +386,18 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Checks whether the next word and the previous word can be merged if the current word is a hyphen,
+     * an en-dash or an em-dash.
+     * If the previous word and the next word exist and they are valid words,
+     * it merges the previous word and the next word into a single word and add the new word to the sentence
+     * If the merge is valid, it returns true.
+     * @param word current word
+     * @param result the sentence that the word belongs to
+     * @param previousWord the word before current word
+     * @param nextWord the word after current word
+     * @return true if merge is valid, false otherwise
+     */
     protected boolean forcedHyphenMergeCheck(Word word, Sentence result, Word previousWord, Word nextWord) {
         if (word.getName().equals("-") || word.getName().equals("–") || word.getName().equals("—")) {
             if (previousWord != null && nextWord != null && previousWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+") && nextWord.getName().matches("[a-zA-ZçöğüşıÇÖĞÜŞİ]+")) {
@@ -329,6 +411,14 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Checks whether the current word ends with a valid question suffix and split it if it does.
+     * It splits the word with the question suffix and adds the two new words to the sentence.
+     * If the split is valid, it returns true.
+     * @param word current word
+     * @param result the sentence that the word belongs to
+     * @return true if split is valid, false otherwise
+     */
     protected boolean forcedQuestionSuffixSplitCheck(Word word, Sentence result) {
         String wordName = word.getName();
         if (fsm.morphologicalAnalysis(wordName).size() > 0) {
@@ -348,6 +438,14 @@ public class SimpleSpellChecker implements SpellChecker {
         return false;
     }
 
+    /**
+     * Generates a list of merged candidates for the word and previous and next words.
+     *
+     * @param previousWord The previous word in the sentence.
+     * @param word The word currently being checked.
+     * @param nextWord The next word in the sentence.
+     * @return A list of merged candidates.
+     */
     protected ArrayList<Candidate> mergedCandidatesList(Word previousWord, Word word, Word nextWord) {
         ArrayList<Candidate> mergedCandidates = new ArrayList<>();
         Candidate backwardMergeCandidate = null;
@@ -371,6 +469,12 @@ public class SimpleSpellChecker implements SpellChecker {
         return mergedCandidates;
     }
 
+    /**
+     * Generates a list of split candidates for the given word.
+     *
+     * @param word The word currently being checked.
+     * @return A list of split candidates.
+     */
     protected ArrayList<Candidate> splitCandidatesList(Word word) {
         ArrayList<Candidate> splitCandidates = new ArrayList<>();
         for (int i = 4; i < word.getName().length() - 3; i++) {
@@ -385,11 +489,14 @@ public class SimpleSpellChecker implements SpellChecker {
         return splitCandidates;
     }
 
-    private void loadDictionaries() {
+    /**
+     * Loads the merged and split lists from the specified files.
+     */
+    protected void loadDictionaries() {
         String line;
         String[] list;
-        String result;
-        try{
+        StringBuilder result;
+        try {
             BufferedReader mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
             BufferedReader splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
             line = mergedReader.readLine();
@@ -401,12 +508,12 @@ public class SimpleSpellChecker implements SpellChecker {
             mergedReader.close();
             line = splitReader.readLine();
             while (line != null) {
-                result = "";
+                result = new StringBuilder();
                 list = line.split(" ");
                 for (int i = 1; i < list.length; i++) {
-                    result += list[i] + " ";
+                    result.append(list[i]).append(" ");
                 }
-                splitWords.put(list[0], result);
+                splitWords.put(list[0], result.toString());
                 line = splitReader.readLine();
             }
             splitReader.close();

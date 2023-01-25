@@ -16,12 +16,12 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     HashMap<String, ArrayList<String>> contextList;
 
     /**
-     * Constructs a new ContextBasedSpellChecker object with the given morphological analyzer,
-     * ngram, and spell checker parameter.
+     * A constructor of {@link ContextBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
      *
-     * @param fsm the morphological analyzer
-     * @param nGram the ngram object
-     * @param parameter the spell checker parameter
+     * @param fsm {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram {@link NGram} type input.
+     * @param parameter {@link SpellCheckerParameter} type input.
      */
     public ContextBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
         super(fsm, nGram, parameter);

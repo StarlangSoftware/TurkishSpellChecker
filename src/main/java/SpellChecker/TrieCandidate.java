@@ -3,19 +3,19 @@ package SpellChecker;
 public class TrieCandidate extends Candidate {
 
     private int currentIndex;
-    private double penalty;
+    private double currentPenalty;
 
     /**
      * Constructs a TrieCandidate object.
      *
      * @param word the candidate word
      * @param currentIndex the current index of the candidate word
-     * @param penalty the penalty associated with the candidate word
+     * @param currentPenalty the currentPenalty associated with the candidate word
      */
-    public TrieCandidate(String word, int currentIndex, double penalty) {
+    public TrieCandidate(String word, int currentIndex, double currentPenalty) {
         super(word, Operator.TRIE_BASED);
         this.currentIndex = currentIndex;
-        this.penalty = penalty;
+        this.currentPenalty = currentPenalty;
     }
 
     /**
@@ -28,12 +28,12 @@ public class TrieCandidate extends Candidate {
     }
 
     /**
-     * Returns the penalty value associated with the candidate word.
+     * Returns the currentPenalty value associated with the candidate word.
      *
-     * @return the penalty value associated with the candidate word
+     * @return the currentPenalty value associated with the candidate word
      */
     public double getCurrentPenalty() {
-        return penalty;
+        return currentPenalty;
     }
 
     /**

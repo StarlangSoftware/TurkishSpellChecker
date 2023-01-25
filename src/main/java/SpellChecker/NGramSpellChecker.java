@@ -6,7 +6,6 @@ import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
@@ -14,8 +13,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
-     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer} and
-     * assigns given {@link NGram} to the nGram variable.
+     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer}
+     * assigns given {@link NGram} to the nGram variable and creates a {@link SpellCheckerParameter} with default values.
      *
      * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram {@link NGram} type input.
@@ -25,6 +24,16 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         this.nGram = nGram;
         parameter = new SpellCheckerParameter();
     }
+
+    /**
+     * Another constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer}
+     * assigns given {@link NGram} to the nGram variable and assigns given {@link SpellCheckerParameter} to the parameter variable.
+     *
+     * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram {@link NGram} type input.
+     * @param parameter {@link SpellCheckerParameter} type input.
+     */
     public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
         super(fsm);
         this.nGram = nGram;
@@ -33,16 +42,17 @@ public class NGramSpellChecker extends SimpleSpellChecker {
 
     /**
      * Checks the morphological analysis of the given word in the given index. If there is no misspelling, it returns
-     * the longest root word of the possible analyses.
+     * the longest root word of the possible analysis.
+     *
      * @param sentence Sentence to be analyzed.
      * @param index Index of the word
-     * @return If the word is misspelled, null; otherwise the longest root word of the possible analyses.
+     * @return If the word is misspelled, null; otherwise the longest root word of the possible analysis.
      */
     private Word checkAnalysisAndSetRootForWordAtIndex(Sentence sentence, int index) {
         if (index < sentence.wordCount()) {
             String wordName = sentence.getWord(index).getName();
             if ((wordName.matches(".*\\d+.*") && wordName.matches(".*[a-zA-ZçöğüşıÇÖĞÜŞİ]+.*")
-                    && !wordName.contains("'")) || wordName.length() <= 3) {
+                    && !wordName.contains("'")) || wordName.length() < parameter.getMinWordLength()) {
                 return sentence.getWord(index);
             }
             FsmParseList fsmParses = fsm.morphologicalAnalysis(wordName);
@@ -67,14 +77,28 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         }
         return null;
     }
+
+    /**
+     * Checks the morphological analysis of the given word. If there is no misspelling, it returns
+     * the longest root word of the possible analysis.
+     *
+     * @param word Word to be analyzed.
+     * @return If the word is misspelled, null; otherwise the longest root word of the possible analysis.
+     */
     private Word checkAnalysisAndSetRoot(String word) {
-        FsmParseList fsmParses = fsm.morphologicalAnalysis(word);
-        if (fsmParses.size() != 0){
-            if (parameter.isRootNGram()){
-                return fsmParses.getParseWithLongestRootWord().getWord();
-            } else {
-                return new Word(word);
+        FsmParseList fsmParsesOfWord = fsm.morphologicalAnalysis(word);
+        if (fsmParsesOfWord.size() != 0) {
+            if (parameter.isRootNGram()) {
+                return fsmParsesOfWord.getParseWithLongestRootWord().getWord();
             }
+            return new Word(word);
+        }
+        FsmParseList fsmParsesOfCapitalizedWord = fsm.morphologicalAnalysis(Word.toCapital(word));
+        if (fsmParsesOfCapitalizedWord.size() != 0) {
+            if (parameter.isRootNGram()) {
+                return fsmParsesOfCapitalizedWord.getParseWithLongestRootWord().getWord();
+            }
+            return new Word(word);
         }
         return null;
     }
@@ -159,10 +183,10 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     continue;
                 }
             }
-            if (root == null || (word.getName().length() <= 3 && fsm.morphologicalAnalysis(word.getName()).size() == 0)) {
+            if (root == null || (word.getName().length() < parameter.getMinWordLength() && fsm.morphologicalAnalysis(word.getName()).size() == 0)) {
                 candidates = new ArrayList<>();
                 if (root == null) {
-                    candidates.addAll(candidateList(word));
+                    candidates.addAll(candidateList(word, sentence));
                     candidates.addAll(splitCandidatesList(word));
                 }
                 candidates.addAll(mergedCandidatesList(previousWord, word, nextWord));
@@ -170,7 +194,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 bestRoot = word;
                 bestProbability = parameter.getThreshold();
                 for (Candidate candidate : candidates) {
-                    if (candidate.getOperator() == Operator.SPELL_CHECK || candidate.getOperator() == Operator.MISSPELLED_REPLACE){
+                    if (candidate.getOperator() == Operator.SPELL_CHECK || candidate.getOperator() == Operator.MISSPELLED_REPLACE
+                            || candidate.getOperator() == Operator.CONTEXT_BASED || candidate.getOperator() == Operator.TRIE_BASED) {
                         root = checkAnalysisAndSetRoot(candidate.getName());
                     }
                     if (candidate.getOperator() == Operator.BACKWARD_MERGE && previousWord != null) {
