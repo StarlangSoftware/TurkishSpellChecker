@@ -10,12 +10,14 @@ import static org.junit.Assert.*;
 public class NGramSpellCheckerTest {
     FsmMorphologicalAnalyzer fsm;
     NGram<String> nGram;
+    SpellCheckerParameter spellCheckerParameter;
 
     @Before
     public void setUp(){
         fsm = new FsmMorphologicalAnalyzer();
         nGram = new NGram<String>("ngram.txt");
         nGram.calculateNGramProbabilities(new NoSmoothing<>());
+        spellCheckerParameter = new SpellCheckerParameter();
     }
 
     @Test
@@ -46,7 +48,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("minibü durağı"),
                 new Sentence("ntoer belgesi"),
                 new Sentence("bu filmi daha önce görmemişmiydik diye sordu")};
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, new SpellCheckerParameter());
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, spellCheckerParameter);
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
         }
@@ -86,7 +88,7 @@ public class NGramSpellCheckerTest {
                 new Sentence("10 lük sistemden 100 lık sisteme geçiş yapılacak"),
                 new Sentence("play - off maçlarına çıkacak takımlar belli oldu"),
                 new Sentence("bu son model ciha 24inç ekran büyüklüğünde ve 9kg ağırlıktadır")};
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, new SpellCheckerParameter());
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, spellCheckerParameter);
         for (int i = 0; i < modified.length; i++){
             assertEquals(original[i].toString(), nGramSpellChecker.spellCheck(modified[i]).toString());
         }
@@ -94,9 +96,8 @@ public class NGramSpellCheckerTest {
 
     @Test
     public void testSpellCheckSurfaceForm() {
-        SpellCheckerParameter parameter = new SpellCheckerParameter();
-        parameter.setRootNGram(false);
-        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, parameter);
+        spellCheckerParameter.setRootNGram(false);
+        NGramSpellChecker nGramSpellChecker = new NGramSpellChecker(fsm, nGram, spellCheckerParameter);
         assertEquals("noter hakkında", nGramSpellChecker.spellCheck(new Sentence("noter hakkınad")).toString());
         assertEquals("arçelik'in çamaşır", nGramSpellChecker.spellCheck(new Sentence("arçelik'in çamşaır")).toString());
         assertEquals("ruhsat yanında", nGramSpellChecker.spellCheck(new Sentence("ruhset yanında")).toString());
