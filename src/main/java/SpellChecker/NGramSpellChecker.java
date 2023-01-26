@@ -226,7 +226,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                     } else {
                         nextProbability = 0.0;
                     }
-                    if (Math.max(previousProbability, nextProbability) > bestProbability) {
+                    if (Math.max(previousProbability, nextProbability) > bestProbability || candidates.size() == 1) {
                         bestCandidate = candidate;
                         bestRoot = root;
                         bestProbability = Math.max(previousProbability, nextProbability);
@@ -237,7 +237,7 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 }
                 if (bestCandidate.getOperator() == Operator.BACKWARD_MERGE) {
                     result.replaceWord(result.wordCount() - 1, new Word(bestCandidate.getName()));
-                } else{
+                } else {
                     if (bestCandidate.getOperator() == Operator.SPLIT){
                         addSplitWords(bestCandidate.getName(), result);
                     } else {
