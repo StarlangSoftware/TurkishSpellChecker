@@ -42,14 +42,4 @@ public class TrieCandidate extends Candidate {
     public void nextIndex() {
         currentIndex += 1;
     }
-
-    /**
-     * Determines if the candidate word has been fully traversed or not
-     *
-     * @return true if the current index is equal to the length of the word,
-     *         false otherwise
-     */
-    public boolean isTraversed(){
-        return currentIndex == name.length();
-    }
 }
