@@ -144,12 +144,24 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
             sb.append(c.charValue());
         letters = sb.toString();
         switch(currentName.charAt(currentIndex)) {
-            case 'c' -> deasciified[currentIndex] = 'ç';
-            case 'g' -> deasciified[currentIndex] = 'ğ';
-            case 'i' -> deasciified[currentIndex] = 'ı';
-            case 's' -> deasciified[currentIndex] = 'ş';
-            case 'o' -> deasciified[currentIndex] = 'ö';
-            case 'u' -> deasciified[currentIndex] = 'ü';
+            case 'c':
+                deasciified[currentIndex] = 'ç';
+                break;
+            case 'g':
+                deasciified[currentIndex] = 'ğ';
+                break;
+            case 'i':
+                deasciified[currentIndex] = 'ı';
+                break;
+            case 's':
+                deasciified[currentIndex] = 'ş';
+                break;
+            case 'o':
+                deasciified[currentIndex] = 'ö';
+                break;
+            case 'u':
+                deasciified[currentIndex] = 'ü';
+                break;
         }
         String deasciifiedWord = new String(deasciified);
         if(!deasciifiedWord.equals(currentName) && trie.startsWith(deasciifiedWord.substring(0, currentIndex + 1))) {
