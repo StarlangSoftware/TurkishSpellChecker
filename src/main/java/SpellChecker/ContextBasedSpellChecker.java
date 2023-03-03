@@ -3,6 +3,7 @@ package SpellChecker;
 import Corpus.Sentence;
 import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
+import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
 import Util.FileUtils;
 import java.io.*;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class ContextBasedSpellChecker extends NGramSpellChecker {
-    HashMap<String, ArrayList<String>> contextList;
+    private HashMap<String, ArrayList<String>> contextList;
 
     /**
      * A constructor of {@link ContextBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
@@ -35,17 +36,17 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     protected void loadDictionaries() {
         super.loadDictionaries();
         String line;
-        ArrayList<String> proximityWords;
+        ArrayList<String> contextListWords;
         contextList = new HashMap<>();
         try {
-            BufferedReader proximityReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("context_list.txt"), StandardCharsets.UTF_8));
-            while ((line = proximityReader.readLine()) != null) {
+            BufferedReader contextListReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("context_list.txt"), StandardCharsets.UTF_8));
+            while ((line = contextListReader.readLine()) != null) {
                 String word = line.split("\t")[0];
                 String[] otherWords = line.split("\t")[1].split(" ");
-                proximityWords = new ArrayList<>(Arrays.asList(otherWords));
-                contextList.put(word, proximityWords);
+                contextListWords = new ArrayList<>(Arrays.asList(otherWords));
+                contextList.put(word, contextListWords);
             }
-            proximityReader.close();
+            contextListReader.close();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -65,36 +66,34 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     @Override
     protected ArrayList<Candidate> candidateList(Word word, Sentence sentence) {
         ArrayList<Word> words = new ArrayList<>(sentence.getWords());
-        ArrayList<String> roots = new ArrayList<>();
         HashSet<Candidate> candidates = new HashSet<>();
         ArrayList<Candidate> validCandidates = new ArrayList<>();
         words.remove(word);
         for (Word w : words) {
-            if(fsm.morphologicalAnalysis(w.getName()).size() > 0) {
-                roots.add(fsm.morphologicalAnalysis(w.getName()).getParseWithLongestRootWord().getWord().getName());
-            }
-        }
-        for (String root : roots) {
-            if(contextList.containsKey(root)) {
-                for (String s : contextList.get(root)) {
-                    candidates.add(new Candidate(s, Operator.CONTEXT_BASED));
+            FsmParseList parses = fsm.morphologicalAnalysis(Word.toCapital(w.getName()));
+            if (parses.size() > 0) {
+                String root = parses.getParseWithLongestRootWord().getWord().getName();
+                if (contextList.containsKey(root)) {
+                    for (String s : contextList.get(root)) {
+                        candidates.add(new Candidate(s, Operator.CONTEXT_BASED));
+                    }
                 }
             }
         }
-        for(Candidate candidate : candidates) {
+        for (Candidate candidate : candidates) {
             int distance;
-            if(candidate.getName().length() < 5) {
+            if (candidate.getName().length() < 5) {
                 distance = 1;
             }
             else {
-                if(candidate.getName().length() < 7) {
+                if (candidate.getName().length() < 7) {
                     distance = 2;
                 }
                 else {
                     distance = 3;
                 }
             }
-            if(damerauLevenshteinDistance(word.getName(), candidate.getName()) <= distance) {
+            if (damerauLevenshteinDistance(word.getName(), candidate.getName()) <= distance) {
                 validCandidates.add(candidate);
             }
         }
@@ -114,7 +113,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
         if (first == null || first.isEmpty())  {
             return second == null || second.isEmpty() ? 0 : second.length();
         }
-        else if (second == null || second.isEmpty()) {
+        if (second == null || second.isEmpty()) {
             return first.length();
         }
         int firstLength = first.length();
