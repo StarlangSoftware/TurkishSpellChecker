@@ -8,7 +8,7 @@ public class Trie {
     /**
      * A constructor of {@link Trie} class which constructs a new Trie with an empty root node
      */
-    public Trie(){
+    public Trie() {
         rootNode = new TrieNode();
     }
 
@@ -21,8 +21,8 @@ public class Trie {
         TrieNode currentNode = rootNode;
         for (int i = 0; i < word.length(); i++) {
             char character = word.charAt(i);
-            if(currentNode.getChild(character) == null) {
-                currentNode.getChildren().put(character,new TrieNode());
+            if (currentNode.getChild(character) == null) {
+                currentNode.addChild(character, new TrieNode());
             }
             currentNode = currentNode.getChild(character);
         }
@@ -37,10 +37,9 @@ public class Trie {
      */
     public boolean search(String word) {
         TrieNode node = getTrieNode(word.toLowerCase(new Locale("tr", "TR")));
-        if(node == null) {
+        if (node == null) {
             return false;
-        }
-        else {
+        } else {
             return node.isWord();
         }
     }
@@ -54,8 +53,7 @@ public class Trie {
     public boolean startsWith(String prefix) {
         if (getTrieNode(prefix.toLowerCase(new Locale("tr", "TR"))) == null) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -70,7 +68,7 @@ public class Trie {
         TrieNode currentNode = rootNode;
         for (int i = 0; i < word.length(); i++) {
             char character = word.charAt(i);
-            if(currentNode.getChild(character) == null) {
+            if (currentNode.getChild(character) == null) {
                 return null;
             }
             currentNode = currentNode.getChild(character);

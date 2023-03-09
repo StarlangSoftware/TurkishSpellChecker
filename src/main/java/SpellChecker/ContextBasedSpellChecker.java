@@ -6,6 +6,7 @@ import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
 import Util.FileUtils;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
      * A constructor of {@link ContextBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
      * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
      *
-     * @param fsm {@link FsmMorphologicalAnalyzer} type input.
-     * @param nGram {@link NGram} type input.
+     * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram     {@link NGram} type input.
      * @param parameter {@link SpellCheckerParameter} type input.
      */
     public ContextBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
@@ -47,8 +48,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
                 contextList.put(word, contextListWords);
             }
             contextListReader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -56,10 +56,10 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     /**
      * Uses context information to generate candidates for a misspelled word.
      * The candidates are the words that are in the context of the neighbouring words of the misspelled word.
-     * Uses the {@Link damerauLevenshteinDistance(String,String) method to calculate the distance between the misspelled word and
+     * Uses the {@Link damerauLevenshteinDistance(String, String) method to calculate the distance between the misspelled word and
      * the candidates and to determine whether the candidates are valid.
      *
-     * @param word the misspelled word
+     * @param word     the misspelled word
      * @param sentence the sentence containing the misspelled word
      * @return an ArrayList of valid candidates for the misspelled word
      */
@@ -84,12 +84,10 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
             int distance;
             if (candidate.getName().length() < 5) {
                 distance = 1;
-            }
-            else {
+            } else {
                 if (candidate.getName().length() < 7) {
                     distance = 2;
-                }
-                else {
+                } else {
                     distance = 3;
                 }
             }
@@ -105,12 +103,12 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
      * This method also allows for the transposition of adjacent characters,
      * which is not possible in a standard Levenshtein distance calculation.
      *
-     * @param first the first string
+     * @param first  the first string
      * @param second the second string
      * @return the Damerau-Levenshtein distance between the two strings
      */
     private int damerauLevenshteinDistance(String first, String second) {
-        if (first == null || first.isEmpty())  {
+        if (first == null || first.isEmpty()) {
             return second == null || second.isEmpty() ? 0 : second.length();
         }
         if (second == null || second.isEmpty()) {

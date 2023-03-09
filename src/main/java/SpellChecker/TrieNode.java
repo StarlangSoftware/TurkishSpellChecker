@@ -22,12 +22,16 @@ public class TrieNode {
         return children.get(character);
     }
 
-    /**
-     * Returns the HashMap of children for the current TrieNode.
-     * @return HashMap of children for the current TrieNode.
-     */
-    public HashMap<Character, TrieNode> getChildren() {
-        return children;
+    public void addChild(Character ch, TrieNode child){
+        children.put(ch, child);
+    }
+
+    public String childrenToString(){
+        StringBuilder result = new StringBuilder();
+        for (Character ch : children.keySet()){
+            result.append(ch);
+        }
+        return result.toString();
     }
 
     /**
