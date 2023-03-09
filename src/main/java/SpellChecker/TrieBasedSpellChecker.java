@@ -130,10 +130,11 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
 
         char[] deasciified = currentName.toCharArray();
         String letters;
-        if (trie.getTrieNode(currentName.substring(0, currentIndex)) == null) {
+        TrieNode currentNode = trie.getTrieNode(currentName.substring(0, currentIndex));
+        if (currentNode == null) {
             return candidates;
         }
-        letters = trie.getTrieNode(currentName.substring(0, currentIndex)).childrenToString();
+        letters = currentNode.childrenToString();
         switch (currentName.charAt(currentIndex)) {
             case 'c':
                 deasciified[currentIndex] = 'ç';
