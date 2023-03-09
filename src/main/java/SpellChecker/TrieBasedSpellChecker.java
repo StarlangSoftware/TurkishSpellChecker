@@ -127,7 +127,6 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
         String currentName = candidate.getName();
         int currentIndex = candidate.getCurrentIndex();
         double currentPenalty = candidate.getCurrentPenalty();
-
         char[] deasciified = currentName.toCharArray();
         String letters;
         TrieNode currentNode = trie.getTrieNode(currentName.substring(0, currentIndex));
@@ -159,27 +158,20 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
         if (!deasciifiedWord.equals(currentName) && trie.startsWith(deasciifiedWord.substring(0, currentIndex + 1))) {
             candidates.add(new TrieCandidate(deasciifiedWord, currentIndex, currentPenalty + 0.2));
         }
-
         for (int j = 0; j < letters.length(); j++) {
             String replaced = currentName.substring(0, currentIndex) + letters.charAt(j) + currentName.substring(currentIndex + 1);
-            if (trie.startsWith(replaced.substring(0, currentIndex + 1))) {
-                candidates.add(new TrieCandidate(replaced, currentIndex, currentPenalty + 1));
-            }
+            candidates.add(new TrieCandidate(replaced, currentIndex, currentPenalty + 1));
             String added = currentName.substring(0, currentIndex) + letters.charAt(j) + currentName.substring(currentIndex);
-            if (trie.startsWith(added.substring(0, currentIndex + 1))) {
-                candidates.add(new TrieCandidate(added, currentIndex, currentPenalty + 1));
-            }
+            candidates.add(new TrieCandidate(added, currentIndex, currentPenalty + 1));
             String addedLast = currentName + letters.charAt(j);
             if (trie.startsWith(addedLast)) {
                 candidates.add(new TrieCandidate(addedLast, currentIndex, currentPenalty + 1));
             }
         }
-
         String deleted = currentName.substring(0, currentIndex) + currentName.substring(currentIndex + 1);
-        if (deleted.length() > 1 && trie.startsWith(deleted.substring(0, currentIndex))) {
+        if (deleted.length() > 1) {
             candidates.add(new TrieCandidate(deleted, currentIndex - 1, currentPenalty + 1));
         }
-
         if (currentIndex < currentName.length() - 1 && currentName.charAt(currentIndex) != currentName.charAt(currentIndex + 1) && trie.startsWith(currentName.substring(0, currentIndex + 2))) {
             String swapped = currentName.substring(0, currentIndex) + currentName.charAt(currentIndex + 1) + currentName.charAt(currentIndex) + currentName.substring(currentIndex + 2);
             candidates.add(new TrieCandidate(swapped, currentIndex, currentPenalty + 1));
