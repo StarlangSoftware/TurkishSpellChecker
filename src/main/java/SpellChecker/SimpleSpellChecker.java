@@ -247,8 +247,9 @@ public class SimpleSpellChecker implements SpellChecker {
      */
     protected void addSplitWords(String multiWord, Sentence result) {
         String[] words = multiWord.split(" ");
-        result.addWord(new Word(words[0]));
-        result.addWord(new Word(words[1]));
+        for (String word : words){
+            result.addWord(new Word(word));
+        }
     }
 
     /**
@@ -495,7 +496,7 @@ public class SimpleSpellChecker implements SpellChecker {
     protected void loadDictionaries() {
         String line;
         String[] list;
-        StringBuilder result;
+        String result;
         try {
             BufferedReader mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
             BufferedReader splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
@@ -508,12 +509,9 @@ public class SimpleSpellChecker implements SpellChecker {
             mergedReader.close();
             line = splitReader.readLine();
             while (line != null) {
-                result = new StringBuilder();
-                list = line.split(" ");
-                for (int i = 1; i < list.length; i++) {
-                    result.append(list[i]).append(" ");
-                }
-                splitWords.put(list[0], result.toString());
+                String word = line.substring(0, line.indexOf(' '));
+                result = line.substring(line.indexOf(' ') + 1);
+                splitWords.put(word, result);
                 line = splitReader.readLine();
             }
             splitReader.close();
