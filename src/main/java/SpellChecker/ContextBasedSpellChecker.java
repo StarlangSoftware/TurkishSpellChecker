@@ -6,7 +6,6 @@ import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
 import Util.FileUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -30,6 +29,17 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     }
 
     /**
+     * Another constructor of {@link ContextBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and
+     * an {@link NGram} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
+     *
+     * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram     {@link NGram} type input.
+     */
+    public ContextBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
+        super(fsm, nGram);
+    }
+
+    /**
      * {@inheritDoc}
      * This method also loads context information from a file.
      */
@@ -39,8 +49,14 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
         String line;
         ArrayList<String> contextListWords;
         contextList = new HashMap<>();
+        BufferedReader contextListReader = null;
         try {
-            BufferedReader contextListReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("context_list.txt"), StandardCharsets.UTF_8));
+            if(parameter.getDomain() == null) {
+                contextListReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("context_list.txt"), StandardCharsets.UTF_8));
+            }
+            else {
+                contextListReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream(parameter.getDomain() + "_context_list.txt"), StandardCharsets.UTF_8));
+            }
             while ((line = contextListReader.readLine()) != null) {
                 String word = line.split("\t")[0];
                 String[] otherWords = line.split("\t")[1].split(" ");

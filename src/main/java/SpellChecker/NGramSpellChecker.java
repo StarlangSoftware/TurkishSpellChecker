@@ -5,12 +5,10 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
-
 import java.util.ArrayList;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
-    private SpellCheckerParameter parameter;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
@@ -23,7 +21,6 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
         super(fsm);
         this.nGram = nGram;
-        parameter = new SpellCheckerParameter();
     }
 
     /**
@@ -36,9 +33,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
      * @param parameter {@link SpellCheckerParameter} type input.
      */
     public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
-        super(fsm);
+        super(fsm, parameter);
         this.nGram = nGram;
-        this.parameter = parameter;
     }
 
     /**
