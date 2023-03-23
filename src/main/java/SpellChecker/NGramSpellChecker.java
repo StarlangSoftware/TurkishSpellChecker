@@ -5,17 +5,15 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
-
 import java.util.ArrayList;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
-    private SpellCheckerParameter parameter;
 
     /**
-     * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
-     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer}
-     * assigns given {@link NGram} to the nGram variable and creates a {@link SpellCheckerParameter} with default values.
+     * A constructor of {@link NGramSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and an {@link NGram}
+     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer} and
+     * assigns given {@link NGram} to the nGram variable.
      *
      * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram {@link NGram} type input.
@@ -23,22 +21,20 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
         super(fsm);
         this.nGram = nGram;
-        parameter = new SpellCheckerParameter();
     }
 
     /**
-     * Another constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * Another constructor of {@link NGramSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer}, an {@link NGram}
      * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer}
-     * assigns given {@link NGram} to the nGram variable and assigns given {@link SpellCheckerParameter} to the parameter variable.
+     * and {@link SpellCheckerParameter}. Finally, it assigns given {@link NGram} to the nGram variable.
      *
      * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram     {@link NGram} type input.
      * @param parameter {@link SpellCheckerParameter} type input.
      */
     public NGramSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
-        super(fsm);
+        super(fsm, parameter);
         this.nGram = nGram;
-        this.parameter = parameter;
     }
 
     /**

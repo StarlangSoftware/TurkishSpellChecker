@@ -8,12 +8,12 @@ public class SpellCheckerParameter {
     private boolean deMiCheck = true;
     private boolean rootNGram = true;
     private int minWordLength = 4;
+    private String domain = null;
 
     /**
      * Constructs a SpellCheckerParameter object with default values.
-     *
-     * The default threshold is 0.0, the De-Mi check is enabled, the root ngram is enabled and
-     * the minimum word length is 4.
+     * The default threshold is 0.0, the De-Mi check is enabled, the root ngram is enabled,
+     * the minimum word length is 4 and domain name value is null.
      */
     public SpellCheckerParameter() {
     }
@@ -57,6 +57,15 @@ public class SpellCheckerParameter {
     }
 
     /**
+     * Sets the domain name to the specified value.
+     *
+     * @param domain the new domain name to set for this object
+     */
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    /**
      * Returns the threshold value used in calculating the n-gram probabilities.
      *
      * @return the threshold for the spell checker
@@ -92,5 +101,14 @@ public class SpellCheckerParameter {
      */
     public int getMinWordLength() {
         return minWordLength;
+    }
+
+    /**
+     * Returns the domain name
+     *
+     * @return the domain name
+     */
+    public String getDomain() {
+        return domain;
     }
 }

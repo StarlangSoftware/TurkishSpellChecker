@@ -15,6 +15,7 @@ import java.util.*;
 
 public class SimpleSpellChecker implements SpellChecker {
     protected FsmMorphologicalAnalyzer fsm;
+    protected SpellCheckerParameter parameter;
     private HashMap<String, String> mergedWords = new HashMap<>();
     private HashMap<String, String> splitWords = new HashMap<>();
     private static final ArrayList<String> shortcuts = new ArrayList<>(Arrays.asList("cc", "cm2", "cm", "gb", "ghz", "gr", "gram", "hz", "inc", "inch", "inç",
@@ -31,13 +32,29 @@ public class SimpleSpellChecker implements SpellChecker {
             "mıymışlar", "muymuşsun", "muymuşlar", "müymüşsün", "müymüşler", "misinizdir", "mısınızdır", "musunuzdur", "müsünüzdür"));
 
     /**
-     * A constructor of {@link SimpleSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} as an input,
-     * assigns it to the fsm variable and calls the loadDictionaries method.
+     * A constructor of {@link SimpleSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} as an input and
+     * assigns it to the fsm variable. Then it creates a new {@link SpellCheckerParameter} and assigns it to the parameter.
+     * Finally, it calls the loadDictionaries method.
      *
      * @param fsm {@link FsmMorphologicalAnalyzer} type input.
      */
     public SimpleSpellChecker(FsmMorphologicalAnalyzer fsm) {
         this.fsm = fsm;
+        this.parameter = new SpellCheckerParameter();
+        loadDictionaries();
+    }
+
+    /**
+     * Another constructor of {@link SimpleSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and a
+     * {@link SpellCheckerParameter} as inputs, assigns {@link FsmMorphologicalAnalyzer} to the fsm variable and
+     * {@link SpellCheckerParameter} to the parameter variable. Then, it calls the loadDictionaries method.
+     *
+     * @param fsm {@link FsmMorphologicalAnalyzer} type input.
+     * @param parameter {@link SpellCheckerParameter} type input.
+     */
+    public SimpleSpellChecker(FsmMorphologicalAnalyzer fsm , SpellCheckerParameter parameter) {
+        this.fsm = fsm;
+        this.parameter = parameter;
         loadDictionaries();
     }
 
@@ -58,7 +75,7 @@ public class SimpleSpellChecker implements SpellChecker {
         String s = TurkishLanguage.LOWERCASE_LETTERS;
         ArrayList<Candidate> candidates = new ArrayList<>();
         for (int i = 0; i < word.length(); i++) {
-            if (i < word.length() - 1){
+            if (i < word.length() - 1) {
                 Candidate swapped = new Candidate(word.substring(0, i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2), Operator.SPELL_CHECK);
                 candidates.add(swapped);
             }
@@ -74,6 +91,9 @@ public class SimpleSpellChecker implements SpellChecker {
                 for (int j = 0; j < s.length(); j++) {
                     Candidate added = new Candidate(word.substring(0, i) + s.charAt(j) + word.substring(i), Operator.SPELL_CHECK);
                     candidates.add(added);
+                    if (i == word.length() - 1) {
+                        candidates.add(new Candidate(word + s.charAt(j), Operator.SPELL_CHECK));
+                    }
                 }
             }
         }
@@ -497,9 +517,17 @@ public class SimpleSpellChecker implements SpellChecker {
         String line;
         String[] list;
         String result;
+        BufferedReader mergedReader;
+        BufferedReader splitReader;
         try {
-            BufferedReader mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
-            BufferedReader splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
+            if(parameter.getDomain() == null) {
+                mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("merged.txt"), StandardCharsets.UTF_8));
+                splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("split.txt"), StandardCharsets.UTF_8));
+            }
+            else {
+                mergedReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream(parameter.getDomain() + "_merged.txt"), StandardCharsets.UTF_8));
+                splitReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream(parameter.getDomain() + "_split.txt"), StandardCharsets.UTF_8));
+            }
             line = mergedReader.readLine();
             while (line != null) {
                 list = line.split(" ");
@@ -521,6 +549,13 @@ public class SimpleSpellChecker implements SpellChecker {
         }
     }
 
+    /**
+     * Returns the correct form of a given word by looking it up in the provided dictionary.
+     *
+     * @param wordName the name of the word to look up in the dictionary
+     * @param dictionary the dictionary to use for looking up the word
+     * @return the correct form of the word, as stored in the dictionary, or null if the word is not found
+     */
     protected String getCorrectForm(String wordName, HashMap<String, String> dictionary) {
         if (dictionary.containsKey(wordName)){
             return dictionary.get(wordName);
@@ -528,6 +563,12 @@ public class SimpleSpellChecker implements SpellChecker {
         return null;
     }
 
+    /**
+     * Splits a word into two parts, a key and a value, based on the first non-numeric/non-punctuation character.
+     *
+     * @param word the Word object to split
+     * @return an SimpleEntry object containing the key (numeric/punctuation characters) and the value (remaining characters)
+     */
     private AbstractMap.SimpleEntry<String, String> getSplitPair(Word word) {
         String key = "";
         int j;

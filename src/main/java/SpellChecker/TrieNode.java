@@ -22,10 +22,21 @@ public class TrieNode {
         return children.get(character);
     }
 
+    /**
+     * Adds a child TrieNode to the current TrieNode instance.
+     *
+     * @param ch the character key of the child node to be added.
+     * @param child the TrieNode object to be added as a child.
+     */
     public void addChild(Character ch, TrieNode child){
         children.put(ch, child);
     }
 
+    /**
+     * Returns a string representation of the keys of all child TrieNodes of the current TrieNode instance.
+     *
+     * @return a string of characters representing the keys of all child TrieNodes.
+     */
     public String childrenToString(){
         StringBuilder result = new StringBuilder();
         for (Character ch : children.keySet()){

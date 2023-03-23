@@ -6,7 +6,6 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import Ngram.NGram;
 import Util.FileUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -18,8 +17,9 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
     private Trie trie;
 
     /**
-     * A constructor of {@link TrieBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * A constructor of {@link TrieBasedSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer}, an {@link NGram}
      * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
+     * Finally, it initializes the generatedWords and trie variables.
      *
      * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram     {@link NGram} type input.
@@ -27,6 +27,19 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
      */
     public TrieBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram, SpellCheckerParameter parameter) {
         super(fsm, nGram, parameter);
+        prepareTrie();
+    }
+
+    /**
+     * Another constructor of {@link TrieBasedSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and
+     * an {@link NGram} as inputs. Then, it calls its super class {@link NGramSpellChecker} with given inputs and
+     * initializes the generatedWords and trie variables.
+     *
+     * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram {@link NGram} type input.
+     */
+    public TrieBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
+        super(fsm, nGram);
         prepareTrie();
     }
 
@@ -39,8 +52,14 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
         super.loadDictionaries();
         String line;
         generatedWords = new ArrayList<>();
+        BufferedReader trieReader;
         try {
-            BufferedReader trieReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("generated_words.txt"), StandardCharsets.UTF_8));
+            if(parameter.getDomain() == null) {
+                trieReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("generated_words.txt"), StandardCharsets.UTF_8));
+            }
+            else {
+                trieReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream(parameter.getDomain() + "_generated_words.txt"), StandardCharsets.UTF_8));
+            }
             while ((line = trieReader.readLine()) != null) {
                 generatedWords.add(line);
             }
@@ -120,7 +139,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
      * Transposition: swapping the positions of two adjacent characters in the string.
      *
      * @param candidate the input TrieCandidate
-     * @return a set of candidate strings, each contained in a TrieCandidate object
+     * @return a list of candidate strings, each contained in a TrieCandidate object
      */
     private ArrayList <TrieCandidate> generateTrieCandidates(TrieCandidate candidate) {
         ArrayList<TrieCandidate> candidates = new ArrayList<TrieCandidate>();
@@ -164,7 +183,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
             String added = currentName.substring(0, currentIndex) + letters.charAt(j) + currentName.substring(currentIndex);
             candidates.add(new TrieCandidate(added, currentIndex, currentPenalty + 1));
             String addedLast = currentName + letters.charAt(j);
-            if (trie.startsWith(addedLast)) {
+            if (currentIndex == currentName.length() - 1 && trie.startsWith(addedLast)) {
                 candidates.add(new TrieCandidate(addedLast, currentIndex, currentPenalty + 1));
             }
         }
