@@ -6,7 +6,6 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import Ngram.NGram;
 import Util.FileUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -18,8 +17,9 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
     private Trie trie;
 
     /**
-     * A constructor of {@link TrieBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * A constructor of {@link TrieBasedSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer}, an {@link NGram}
      * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
+     * Finally, it initializes the generatedWords and trie variables.
      *
      * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram     {@link NGram} type input.
@@ -31,12 +31,12 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
     }
 
     /**
-     * Another constructor of {@link TrieBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and
-     * an {@link NGram} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs and
-     * initializes a new {@link SpellCheckerParameter} object.
+     * Another constructor of {@link TrieBasedSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and
+     * an {@link NGram} as inputs. Then, it calls its super class {@link NGramSpellChecker} with given inputs and
+     * initializes the generatedWords and trie variables.
      *
-     * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
-     * @param nGram     {@link NGram} type input.
+     * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram {@link NGram} type input.
      */
     public TrieBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
         super(fsm, nGram);

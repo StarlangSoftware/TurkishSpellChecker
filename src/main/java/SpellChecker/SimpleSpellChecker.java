@@ -32,8 +32,9 @@ public class SimpleSpellChecker implements SpellChecker {
             "mıymışlar", "muymuşsun", "muymuşlar", "müymüşsün", "müymüşler", "misinizdir", "mısınızdır", "musunuzdur", "müsünüzdür"));
 
     /**
-     * A constructor of {@link SimpleSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} as an input,
-     * assigns it to the fsm variable and calls the loadDictionaries method.
+     * A constructor of {@link SimpleSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} as an input and
+     * assigns it to the fsm variable. Then it creates a new {@link SpellCheckerParameter} and assigns it to the parameter.
+     * Finally, it calls the loadDictionaries method.
      *
      * @param fsm {@link FsmMorphologicalAnalyzer} type input.
      */
@@ -44,7 +45,7 @@ public class SimpleSpellChecker implements SpellChecker {
     }
 
     /**
-     * Another constructor of {@link SimpleSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and a
+     * Another constructor of {@link SimpleSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and a
      * {@link SpellCheckerParameter} as inputs, assigns {@link FsmMorphologicalAnalyzer} to the fsm variable and
      * {@link SpellCheckerParameter} to the parameter variable. Then, it calls the loadDictionaries method.
      *

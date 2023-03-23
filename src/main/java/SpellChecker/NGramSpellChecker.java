@@ -11,9 +11,9 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     private NGram<String> nGram;
 
     /**
-     * A constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and an {@link NGram}
-     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer}
-     * assigns given {@link NGram} to the nGram variable and creates a {@link SpellCheckerParameter} with default values.
+     * A constructor of {@link NGramSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and an {@link NGram}
+     * as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer} and
+     * assigns given {@link NGram} to the nGram variable.
      *
      * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram {@link NGram} type input.
@@ -24,9 +24,9 @@ public class NGramSpellChecker extends SimpleSpellChecker {
     }
 
     /**
-     * Another constructor of {@link NGramSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * Another constructor of {@link NGramSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer}, an {@link NGram}
      * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link SimpleSpellChecker} with given {@link FsmMorphologicalAnalyzer}
-     * assigns given {@link NGram} to the nGram variable and assigns given {@link SpellCheckerParameter} to the parameter variable.
+     * and {@link SpellCheckerParameter}. Finally, it assigns given {@link NGram} to the nGram variable.
      *
      * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
      * @param nGram     {@link NGram} type input.

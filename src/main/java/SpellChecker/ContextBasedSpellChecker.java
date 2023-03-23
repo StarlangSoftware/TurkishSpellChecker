@@ -17,7 +17,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     private HashMap<String, ArrayList<String>> contextList;
 
     /**
-     * A constructor of {@link ContextBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer}, an {@link NGram}
+     * A constructor of {@link ContextBasedSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer}, an {@link NGram}
      * and a {@link SpellCheckerParameter} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
      *
      * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
@@ -29,11 +29,11 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     }
 
     /**
-     * Another constructor of {@link ContextBasedSpellChecker} class which takes a {@link FsmMorphologicalAnalyzer} and
+     * Another constructor of {@link ContextBasedSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and
      * an {@link NGram} as inputs. Then, calls its super class {@link NGramSpellChecker} with given inputs.
      *
-     * @param fsm       {@link FsmMorphologicalAnalyzer} type input.
-     * @param nGram     {@link NGram} type input.
+     * @param fsm   {@link FsmMorphologicalAnalyzer} type input.
+     * @param nGram {@link NGram} type input.
      */
     public ContextBasedSpellChecker(FsmMorphologicalAnalyzer fsm, NGram<String> nGram) {
         super(fsm, nGram);
@@ -41,6 +41,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
 
     /**
      * {@inheritDoc}
+     *
      * This method also loads context information from a file.
      */
     @Override
@@ -72,7 +73,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
     /**
      * Uses context information to generate candidates for a misspelled word.
      * The candidates are the words that are in the context of the neighbouring words of the misspelled word.
-     * Uses the {@Link damerauLevenshteinDistance(String, String) method to calculate the distance between the misspelled word and
+     * Uses the {@link ContextBasedSpellChecker#damerauLevenshteinDistance(String, String)} method to calculate the distance between the misspelled word and
      * the candidates and to determine whether the candidates are valid.
      *
      * @param word     the misspelled word
