@@ -5,9 +5,7 @@ import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Ngram.NGram;
-import Util.FileUtils;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,12 +50,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
         contextList = new HashMap<>();
         BufferedReader contextListReader = null;
         try {
-            if(parameter.getDomain() == null) {
-                contextListReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("context_list.txt"), StandardCharsets.UTF_8));
-            }
-            else {
-                contextListReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream(parameter.getDomain() + "_context_list.txt"), StandardCharsets.UTF_8));
-            }
+            contextListReader = getReader("context_list.txt");
             while ((line = contextListReader.readLine()) != null) {
                 String word = line.split("\t")[0];
                 String[] otherWords = line.split("\t")[1].split(" ");

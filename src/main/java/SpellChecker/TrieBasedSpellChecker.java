@@ -5,9 +5,7 @@ import Dictionary.TxtWord;
 import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import Ngram.NGram;
-import Util.FileUtils;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
@@ -54,12 +52,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
         generatedWords = new ArrayList<>();
         BufferedReader trieReader;
         try {
-            if(parameter.getDomain() == null) {
-                trieReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream("generated_words.txt"), StandardCharsets.UTF_8));
-            }
-            else {
-                trieReader = new BufferedReader(new InputStreamReader(FileUtils.getInputStream(parameter.getDomain() + "_generated_words.txt"), StandardCharsets.UTF_8));
-            }
+            trieReader = getReader("generated_words.txt");
             while ((line = trieReader.readLine()) != null) {
                 generatedWords.add(line);
             }
