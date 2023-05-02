@@ -7,7 +7,6 @@ import Language.TurkishLanguage;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import MorphologicalAnalysis.FsmParseList;
 import Util.FileUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -448,10 +447,10 @@ public class SimpleSpellChecker implements SpellChecker {
         }
         for (String questionSuffix : questionSuffixList) {
             if (wordName.endsWith(questionSuffix)) {
-                String newWordName = wordName.substring(0, wordName.lastIndexOf(questionSuffix));
-                TxtWord txtWord = (TxtWord) fsm.getDictionary().getWord(newWordName);
-                if (fsm.morphologicalAnalysis(newWordName).size() > 0 && txtWord != null && !txtWord.isCode()) {
-                    result.addWord(new Word(newWordName));
+                String splitWordName = wordName.substring(0, wordName.lastIndexOf(questionSuffix));
+                TxtWord splitWordRoot = (TxtWord) fsm.getDictionary().getWord(fsm.morphologicalAnalysis(splitWordName).getParseWithLongestRootWord().getWord().getName());
+                if (fsm.morphologicalAnalysis(splitWordName).size() > 0 && splitWordRoot != null && !splitWordRoot.isCode()) {
+                    result.addWord(new Word(splitWordName));
                     result.addWord(new Word(questionSuffix));
                     return true;
                 }
