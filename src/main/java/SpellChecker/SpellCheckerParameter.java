@@ -5,7 +5,7 @@ import Dictionary.Word;
 
 public class SpellCheckerParameter {
     private double threshold = 0.0;
-    private boolean deMiCheck = true;
+    private boolean suffixCheck = true;
     private boolean rootNGram = true;
     private int minWordLength = 4;
     private String domain = null;
@@ -31,11 +31,12 @@ public class SpellCheckerParameter {
      * Enables or disables De-Mi check for the spell checker.
      * @see SimpleSpellChecker#forcedDeDaSplitCheck(Word, Sentence)
      * @see SimpleSpellChecker#forcedQuestionSuffixSplitCheck(Word, Sentence) (Word, Sentence)
+     * @see SimpleSpellChecker#forcedSuffixSplitCheck(Word, Sentence)
      *
-     * @param deMiCheck a boolean indicating whether the De-Mi check should be enabled (true) or disabled (false)
+     * @param suffixCheck a boolean indicating whether the De-Mi check should be enabled (true) or disabled (false)
      */
-    public void setDeMiCheck(boolean deMiCheck) {
-        this.deMiCheck = deMiCheck;
+    public void setSuffixCheck(boolean suffixCheck) {
+        this.suffixCheck = suffixCheck;
     }
 
     /**
@@ -81,8 +82,8 @@ public class SpellCheckerParameter {
      *
      * @return a boolean indicating whether De-Mi check is enabled for the spell checker
      */
-    public boolean deMiCheck() {
-        return deMiCheck;
+    public boolean suffixCheck() {
+        return suffixCheck;
     }
 
     /**
