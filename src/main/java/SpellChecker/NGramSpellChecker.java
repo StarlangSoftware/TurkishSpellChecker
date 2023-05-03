@@ -171,8 +171,8 @@ public class NGramSpellChecker extends SimpleSpellChecker {
                 nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
                 continue;
             }
-            if (parameter.deMiCheck()) {
-                if (forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
+            if (parameter.suffixCheck()) {
+                if (forcedDeDaSplitCheck(word, result) || forcedSuffixSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
                     previousRoot = checkAnalysisAndSetRootForWordAtIndex(result, result.wordCount() - 1);
                     root = nextRoot;
                     nextRoot = checkAnalysisAndSetRootForWordAtIndex(sentence, i + 2);
