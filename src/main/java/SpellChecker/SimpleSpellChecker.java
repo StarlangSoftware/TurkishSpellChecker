@@ -114,7 +114,7 @@ public class SimpleSpellChecker implements SpellChecker {
      * {@link FsmParseList} by calling morphologicalAnalysis with each item of candidates {@link ArrayList}. If the size of
      * {@link FsmParseList} is 0, it then removes the ith item.
      *
-     * @param word Word input.
+     * @param word {@link Word} input.
      * @return candidates {@link ArrayList}.
      */
     protected ArrayList<Candidate> candidateList(Word word, Sentence sentence) {
@@ -169,7 +169,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 i++;
                 continue;
             }
-            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result)) {
+            if (forcedSplitCheck(word, result) || forcedShortcutSplitCheck(word, result) || forcedDeDaSplitCheck(word, result) || forcedQuestionSuffixSplitCheck(word, result) || forcedSuffixSplitCheck(word, result)) {
                 continue;
             }
             FsmParseList fsmParseList = fsm.morphologicalAnalysis(word.getName());
@@ -211,8 +211,8 @@ public class SimpleSpellChecker implements SpellChecker {
      * Checks if the given word is a misspelled word according to the misspellings list,
      * and if it is, then replaces it with its correct form in the given sentence.
      *
-     * @param word   the word to check for misspelling
-     * @param result the sentence that the word belongs to
+     * @param word   the {@link Word} to check for misspelling
+     * @param result the {@link Sentence} that the word belongs to
      * @return true if the word was corrected, false otherwise
      */
     protected boolean forcedMisspellCheck(Word word, Sentence result) {
@@ -228,9 +228,9 @@ public class SimpleSpellChecker implements SpellChecker {
      * Checks if the given word and its preceding word need to be merged according to the merged list.
      * If the merge is needed, the word and its preceding word are replaced with their merged form in the given sentence.
      *
-     * @param word         the word to check for merge
-     * @param result       the sentence that the word belongs to
-     * @param previousWord the preceding word of the given word
+     * @param word         the {@link Word} to check for merge
+     * @param result       the {@link Sentence} that the word belongs to
+     * @param previousWord the preceding {@link Word} of the given {@link Word}
      * @return true if the word was merged, false otherwise
      */
     protected boolean forcedBackwardMergeCheck(Word word, Sentence result, Word previousWord) {
@@ -248,9 +248,9 @@ public class SimpleSpellChecker implements SpellChecker {
      * Checks if the given word and its next word need to be merged according to the merged list.
      * If the merge is needed, the word and its next word are replaced with their merged form in the given sentence.
      *
-     * @param word     the word to check for merge
-     * @param result   the sentence that the word belongs to
-     * @param nextWord the next word of the given word
+     * @param word     the {@link Word} to check for merge
+     * @param result   the {@link Sentence} that the word belongs to
+     * @param nextWord the next {@link Word} of the given {@link Word}
      * @return true if the word was merged, false otherwise
      */
     protected boolean forcedForwardMergeCheck(Word word, Sentence result, Word nextWord) {
@@ -268,7 +268,7 @@ public class SimpleSpellChecker implements SpellChecker {
      * Given a multiword form, splits it and adds it to the given sentence.
      *
      * @param multiWord multiword form to split
-     * @param result    the sentence to add the split words to
+     * @param result    the {@link Sentence} to add the split words to
      */
     protected void addSplitWords(String multiWord, Sentence result) {
         String[] words = multiWord.split(" ");
@@ -281,8 +281,8 @@ public class SimpleSpellChecker implements SpellChecker {
      * Checks if the given word needs to be split according to the split list.
      * If the split is needed, the word is replaced with its split form in the given sentence.
      *
-     * @param word   the word to check for split
-     * @param result the sentence that the word belongs to
+     * @param word   the {@link Word} to check for split
+     * @param result the {@link Sentence} that the word belongs to
      * @return true if the word was split, false otherwise
      */
     protected boolean forcedSplitCheck(Word word, Sentence result) {
@@ -298,8 +298,8 @@ public class SimpleSpellChecker implements SpellChecker {
      * Checks if the given word is a shortcut form, such as "5kg" or "2.5km".
      * If it is, it splits the word into its number and unit form and adds them to the given sentence.
      *
-     * @param word   the word to check for shortcut split
-     * @param result the sentence that the word belongs to
+     * @param word   the {@link Word} to check for shortcut split
+     * @param result the {@link Sentence} that the word belongs to
      * @return true if the word was split, false otherwise
      */
     protected boolean forcedShortcutSplitCheck(Word word, Sentence result) {
@@ -328,8 +328,8 @@ public class SimpleSpellChecker implements SpellChecker {
      * Checks if the given word has a "da" or "de" suffix that needs to be split according to a predefined set of rules.
      * If the split is needed, the word is replaced with its bare form and "da" or "de" in the given sentence.
      *
-     * @param word   the word to check for "da" or "de" split
-     * @param result the sentence that the word belongs to
+     * @param word   the {@link Word} to check for "da" or "de" split
+     * @param result the {@link Sentence} that the word belongs to
      * @return true if the word was split, false otherwise
      */
     protected boolean forcedDeDaSplitCheck(Word word, Sentence result) {
@@ -375,12 +375,40 @@ public class SimpleSpellChecker implements SpellChecker {
     }
 
     /**
+     * Checks whether the given {@link Word} can be split into a proper noun and a suffix, with an apostrophe in between
+     * and adds the split result to the {@link Sentence} if it's valid.
+     *
+     * @param word the {@link Word} to check for forced suffix split.
+     * @param result the {@link Sentence} that the word belongs to
+     * @return true if the split is successful, false otherwise.
+     */
+    protected boolean forcedSuffixSplitCheck(Word word, Sentence result) {
+        String wordName = word.getName();
+        if (fsm.morphologicalAnalysis(wordName).size() > 0) {
+            return false;
+        }
+        for (int i = 1; i < wordName.length(); i++)
+        {
+            String probableProperNoun = Word.toCapital(wordName).substring(0, i);
+            String probableSuffix = wordName.substring(i);
+            String apostropheWord = probableProperNoun + "'" + probableSuffix;
+            TxtWord txtWord = (TxtWord) fsm.getDictionary().getWord(probableProperNoun.toLowerCase(new Locale("tr", "TR")));
+            if (txtWord != null && txtWord.isProperNoun() && fsm.morphologicalAnalysis(apostropheWord).size() > 0)
+            {
+                result.addWord(new Word(apostropheWord));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Checks if the given word is a suffix like 'li' or 'lik' that needs to be merged with its preceding word which is a number.
      * If the merge is needed, the word and its preceding word are replaced with their merged form in the given sentence.
      *
-     * @param word         the word to check for merge
-     * @param sentence     the sentence that the word belongs to
-     * @param previousWord the preceding word of the given word
+     * @param word         the {@link Word} to check for merge
+     * @param sentence     the {@link Sentence} that the word belongs to
+     * @param previousWord the preceding {@link Word} of the given {@link Word}
      * @return true if the word was merged, false otherwise
      */
     protected boolean forcedSuffixMergeCheck(Word word, Sentence sentence, Word previousWord) {
@@ -412,10 +440,10 @@ public class SimpleSpellChecker implements SpellChecker {
      * it merges the previous word and the next word into a single word and add the new word to the sentence
      * If the merge is valid, it returns true.
      *
-     * @param word         current word
-     * @param result       the sentence that the word belongs to
-     * @param previousWord the word before current word
-     * @param nextWord     the word after current word
+     * @param word         current {@link Word}
+     * @param result       the {@link Sentence} that the word belongs to
+     * @param previousWord the {@link Word} before current word
+     * @param nextWord     the {@link Word} after current word
      * @return true if merge is valid, false otherwise
      */
     protected boolean forcedHyphenMergeCheck(Word word, Sentence result, Word previousWord, Word nextWord) {
@@ -436,8 +464,8 @@ public class SimpleSpellChecker implements SpellChecker {
      * It splits the word with the question suffix and adds the two new words to the sentence.
      * If the split is valid, it returns true.
      *
-     * @param word   current word
-     * @param result the sentence that the word belongs to
+     * @param word   current {@link Word}
+     * @param result the {@link Sentence} that the word belongs to
      * @return true if split is valid, false otherwise
      */
     protected boolean forcedQuestionSuffixSplitCheck(Word word, Sentence result) {
@@ -462,9 +490,9 @@ public class SimpleSpellChecker implements SpellChecker {
     /**
      * Generates a list of merged candidates for the word and previous and next words.
      *
-     * @param previousWord The previous word in the sentence.
-     * @param word         The word currently being checked.
-     * @param nextWord     The next word in the sentence.
+     * @param previousWord The previous {@link Word} in the sentence.
+     * @param word         The {@link Word} currently being checked.
+     * @param nextWord     The next {@link Word} in the sentence.
      * @return A list of merged candidates.
      */
     protected ArrayList<Candidate> mergedCandidatesList(Word previousWord, Word word, Word nextWord) {
@@ -493,7 +521,7 @@ public class SimpleSpellChecker implements SpellChecker {
     /**
      * Generates a list of split candidates for the given word.
      *
-     * @param word The word currently being checked.
+     * @param word The {@link Word} currently being checked.
      * @return A list of split candidates.
      */
     protected ArrayList<Candidate> splitCandidatesList(Word word) {
@@ -559,8 +587,8 @@ public class SimpleSpellChecker implements SpellChecker {
     /**
      * Splits a word into two parts, a key and a value, based on the first non-numeric/non-punctuation character.
      *
-     * @param word the Word object to split
-     * @return an SimpleEntry object containing the key (numeric/punctuation characters) and the value (remaining characters)
+     * @param word the {@link Word} object to split
+     * @return an {@link AbstractMap.SimpleEntry} object containing the key (numeric/punctuation characters) and the value (remaining characters)
      */
     private AbstractMap.SimpleEntry<String, String> getSplitPair(Word word) {
         String key = "";
