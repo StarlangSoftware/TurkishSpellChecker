@@ -342,10 +342,11 @@ public class SimpleSpellChecker implements SpellChecker {
                 FsmParseList fsmParseList = fsm.morphologicalAnalysis(newWordName);
                 TxtWord txtNewWord = (TxtWord) fsm.getDictionary().getWord(newWordName.toLowerCase(new Locale("tr", "TR")));
                 if (txtNewWord != null && txtNewWord.isProperNoun()) {
-                    if (fsm.morphologicalAnalysis(newWordName + "'" + "da").size() > 0) {
-                        result.addWord(new Word(newWordName + "'" + "da"));
+                    String newWordNameCapitalized = Word.toCapital(newWordName);
+                    if (fsm.morphologicalAnalysis(newWordNameCapitalized + "'" + "da").size() > 0) {
+                        result.addWord(new Word(newWordNameCapitalized + "'" + "da"));
                     } else {
-                        result.addWord(new Word(newWordName + "'" + "de"));
+                        result.addWord(new Word(newWordNameCapitalized + "'" + "de"));
                     }
                     return true;
                 }
