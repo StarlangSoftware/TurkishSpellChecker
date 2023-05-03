@@ -12,7 +12,7 @@ public class SpellCheckerParameter {
 
     /**
      * Constructs a SpellCheckerParameter object with default values.
-     * The default threshold is 0.0, the De-Mi check is enabled, the root ngram is enabled,
+     * The default threshold is 0.0, the suffix check is enabled, the root ngram is enabled,
      * the minimum word length is 4 and domain name value is null.
      */
     public SpellCheckerParameter() {
@@ -28,12 +28,12 @@ public class SpellCheckerParameter {
     }
 
     /**
-     * Enables or disables De-Mi check for the spell checker.
+     * Enables or disables suffix check for the spell checker.
      * @see SimpleSpellChecker#forcedDeDaSplitCheck(Word, Sentence)
      * @see SimpleSpellChecker#forcedQuestionSuffixSplitCheck(Word, Sentence) (Word, Sentence)
      * @see SimpleSpellChecker#forcedSuffixSplitCheck(Word, Sentence)
      *
-     * @param suffixCheck a boolean indicating whether the De-Mi check should be enabled (true) or disabled (false)
+     * @param suffixCheck a boolean indicating whether the suffix check should be enabled (true) or disabled (false)
      */
     public void setSuffixCheck(boolean suffixCheck) {
         this.suffixCheck = suffixCheck;
@@ -76,11 +76,12 @@ public class SpellCheckerParameter {
     }
 
     /**
-     * Returns whether De-Mi check is enabled for the spell checker.
+     * Returns whether suffix check is enabled for the spell checker.
      * @see SimpleSpellChecker#forcedDeDaSplitCheck(Word, Sentence)
      * @see SimpleSpellChecker#forcedQuestionSuffixSplitCheck(Word, Sentence) (Word, Sentence)
+     * @see SimpleSpellChecker#forcedSuffixSplitCheck(Word, Sentence)
      *
-     * @return a boolean indicating whether De-Mi check is enabled for the spell checker
+     * @return a boolean indicating whether suffix check is enabled for the spell checker
      */
     public boolean suffixCheck() {
         return suffixCheck;
