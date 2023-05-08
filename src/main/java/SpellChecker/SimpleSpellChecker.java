@@ -477,6 +477,9 @@ public class SimpleSpellChecker implements SpellChecker {
         for (String questionSuffix : questionSuffixList) {
             if (wordName.endsWith(questionSuffix)) {
                 String splitWordName = wordName.substring(0, wordName.lastIndexOf(questionSuffix));
+                if (fsm.morphologicalAnalysis(splitWordName).size() < 1) {
+                    return false;
+                }
                 TxtWord splitWordRoot = (TxtWord) fsm.getDictionary().getWord(fsm.morphologicalAnalysis(splitWordName).getParseWithLongestRootWord().getWord().getName());
                 if (fsm.morphologicalAnalysis(splitWordName).size() > 0 && splitWordRoot != null && !splitWordRoot.isCode()) {
                     result.addWord(new Word(splitWordName));
