@@ -1,8 +1,16 @@
 package SpellChecker;
 
 import Corpus.Sentence;
+import Dictionary.Word;
 import MorphologicalAnalysis.FsmMorphologicalAnalyzer;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 import static org.junit.Assert.*;
 
 public class SimpleSpellCheckerTest {
@@ -45,8 +53,50 @@ public class SimpleSpellCheckerTest {
                 new Sentence("bu son model ciha 24inç ekran büyüklüğünde ve 9kg ağırlıktadır")};
         FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
         SimpleSpellChecker simpleSpellChecker = new SimpleSpellChecker(fsm);
-        for (int i = 0; i < modified.length; i++){
+        for (int i = 0; i < modified.length; i++) {
             assertEquals(original[i].toString(), simpleSpellChecker.spellCheck(modified[i]).toString());
+        }
+    }
+
+    public void testDistinctWordList() {
+        FsmMorphologicalAnalyzer fsm = new FsmMorphologicalAnalyzer();
+        SimpleSpellChecker simpleSpellChecker = new SimpleSpellChecker(fsm);
+        try {
+            PrintWriter output1 = new PrintWriter("basic-spellcheck.txt");
+            PrintWriter output2 = new PrintWriter("not-analyzed.txt");
+            Scanner input = new Scanner(new File("distinct.txt"));
+            int count = 0;
+            while (input.hasNext()) {
+                String word = input.next();
+                count++;
+                if (count % 1000 == 0) {
+                    System.out.println(count);
+                }
+                Sentence sentence = new Sentence();
+                boolean done = simpleSpellChecker.forcedShortcutSplitCheck(new Word(word), sentence);
+                if (done) {
+                    output1.println(word + "\t" + sentence.toString());
+                } else {
+                    sentence = new Sentence();
+                    done = simpleSpellChecker.forcedDeDaSplitCheck(new Word(word), sentence);
+                    if (done) {
+                        output1.println(word + "\t" + sentence.toString());
+                    } else {
+                        sentence = new Sentence();
+                        done = simpleSpellChecker.forcedQuestionSuffixSplitCheck(new Word(word), sentence);
+                        if (done) {
+                            output1.println(word + "\t" + sentence.toString());
+                        } else {
+                            output2.println(word);
+                        }
+                    }
+                }
+            }
+            input.close();
+            output1.close();
+            output2.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
