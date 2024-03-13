@@ -3,7 +3,7 @@ package SpellChecker;
 import java.util.Locale;
 
 public class Trie {
-    private TrieNode rootNode;
+    private final TrieNode rootNode;
 
     /**
      * A constructor of {@link Trie} class which constructs a new Trie with an empty root node
@@ -51,11 +51,7 @@ public class Trie {
      * @return true if the prefix exists, false otherwise
      */
     public boolean startsWith(String prefix) {
-        if (getTrieNode(prefix.toLowerCase(new Locale("tr", "TR"))) == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return getTrieNode(prefix.toLowerCase(new Locale("tr", "TR"))) != null;
     }
 
     /**

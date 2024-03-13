@@ -16,8 +16,8 @@ import java.util.*;
 public class SimpleSpellChecker implements SpellChecker {
     protected FsmMorphologicalAnalyzer fsm;
     protected SpellCheckerParameter parameter;
-    private HashMap<String, String> mergedWords = new HashMap<>();
-    private HashMap<String, String> splitWords = new HashMap<>();
+    private final HashMap<String, String> mergedWords = new HashMap<>();
+    private final HashMap<String, String> splitWords = new HashMap<>();
     private static final ArrayList<String> shortcuts = new ArrayList<>(Arrays.asList("cc", "cm2", "cm", "gb", "ghz", "gr", "gram", "hz", "inc", "inch", "inç",
             "kg", "kw", "kva", "litre", "lt", "m2", "m3", "mah", "mb", "metre", "mg", "mhz", "ml", "mm", "mp", "ms", "kb", "mb", "gb", "tb", "pb", "kbps",
             "mt", "mv", "tb", "tl", "va", "volt", "watt", "ah", "hp", "oz", "rpm", "dpi", "ppm", "ohm", "kwh", "kcal", "kbit", "mbit", "gbit", "bit", "byte",
@@ -176,13 +176,13 @@ public class SimpleSpellChecker implements SpellChecker {
             FsmParseList upperCaseFsmParseList = fsm.morphologicalAnalysis(Word.toCapital(word.getName()));
             if (fsmParseList.size() == 0 && upperCaseFsmParseList.size() == 0) {
                 candidates = mergedCandidatesList(previousWord, word, nextWord);
-                if (candidates.size() < 1) {
+                if (candidates.isEmpty()) {
                     candidates = candidateList(word, sentence);
                 }
-                if (candidates.size() < 1) {
+                if (candidates.isEmpty()) {
                     candidates.addAll(splitCandidatesList(word));
                 }
-                if (candidates.size() > 0) {
+                if (!candidates.isEmpty()) {
                     randomCandidate = random.nextInt(candidates.size());
                     newWord = new Word(candidates.get(randomCandidate).getName());
                     if (candidates.get(randomCandidate).getOperator() == Operator.BACKWARD_MERGE) {
@@ -569,8 +569,7 @@ public class SimpleSpellChecker implements SpellChecker {
                 line = splitReader.readLine();
             }
             splitReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 

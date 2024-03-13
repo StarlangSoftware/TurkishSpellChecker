@@ -3,7 +3,7 @@ package SpellChecker;
 import java.util.HashMap;
 
 public class TrieNode {
-    private HashMap<Character, TrieNode> children;
+    private final HashMap<Character, TrieNode> children;
     private boolean isWord;
 
     /**

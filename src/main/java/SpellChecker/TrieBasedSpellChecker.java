@@ -57,8 +57,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
                 generatedWords.add(line);
             }
             trieReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 
@@ -97,7 +96,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
         candidates.addFirst(new TrieCandidate(word.getName(), -1, 0));
         String candidateName;
         double penaltyLimit = Math.min(word.charCount() / 2.0, 3.0);
-        while (candidates.size() > 0) {
+        while (!candidates.isEmpty()) {
             candidate = candidates.peekFirst();
             candidateName = candidate.getName();
             if (trie.search(candidateName)) {
@@ -118,7 +117,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
                 }
             }
         }
-        return new ArrayList<Candidate>(results);
+        return new ArrayList<>(results);
     }
 
     /**
@@ -135,7 +134,7 @@ public class TrieBasedSpellChecker extends NGramSpellChecker {
      * @return a list of candidate strings, each contained in a TrieCandidate object
      */
     private ArrayList <TrieCandidate> generateTrieCandidates(TrieCandidate candidate) {
-        ArrayList<TrieCandidate> candidates = new ArrayList<TrieCandidate>();
+        ArrayList<TrieCandidate> candidates = new ArrayList<>();
         String currentName = candidate.getName();
         int currentIndex = candidate.getCurrentIndex();
         double currentPenalty = candidate.getCurrentPenalty();

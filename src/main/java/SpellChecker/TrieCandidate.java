@@ -3,7 +3,7 @@ package SpellChecker;
 public class TrieCandidate extends Candidate {
 
     private int currentIndex;
-    private double currentPenalty;
+    private final double currentPenalty;
 
     /**
      * Constructs a TrieCandidate object.

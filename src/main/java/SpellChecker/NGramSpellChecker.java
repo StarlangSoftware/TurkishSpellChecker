@@ -8,7 +8,7 @@ import Ngram.NGram;
 import java.util.ArrayList;
 
 public class NGramSpellChecker extends SimpleSpellChecker {
-    private NGram<String> nGram;
+    private final NGram<String> nGram;
 
     /**
      * A constructor of {@link NGramSpellChecker} class which takes an {@link FsmMorphologicalAnalyzer} and an {@link NGram}

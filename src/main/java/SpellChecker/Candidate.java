@@ -3,7 +3,7 @@ package SpellChecker;
 import Dictionary.Word;
 
 public class Candidate extends Word {
-    private Operator operator;
+    private final Operator operator;
 
     /**
      * Constructs a new Candidate object with the specified candidate and operator.

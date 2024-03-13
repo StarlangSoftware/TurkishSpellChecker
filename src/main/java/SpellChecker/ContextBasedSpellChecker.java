@@ -48,7 +48,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
         String line;
         ArrayList<String> contextListWords;
         contextList = new HashMap<>();
-        BufferedReader contextListReader = null;
+        BufferedReader contextListReader;
         try {
             contextListReader = getReader("context_list.txt");
             while ((line = contextListReader.readLine()) != null) {
@@ -58,8 +58,7 @@ public class ContextBasedSpellChecker extends NGramSpellChecker {
                 contextList.put(word, contextListWords);
             }
             contextListReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 
