@@ -81,7 +81,7 @@ Use below line to generate jar file:
         <dependency>
             <groupId>io.github.starlangsoftware</groupId>
             <artifactId>SpellChecker</artifactId>
-            <version>1.0.14</version>
+            <version>1.0.27</version>
         </dependency>
 
 For Developers
