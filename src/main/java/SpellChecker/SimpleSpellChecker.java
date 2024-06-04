@@ -100,6 +100,11 @@ public class SimpleSpellChecker implements SpellChecker {
         return candidates;
     }
 
+    /**
+     * Opens and returns a file reader of a given file name.
+     * @param fileName File to read
+     * @return File reader of the given file.
+     */
     protected BufferedReader getReader(String fileName) {
         if (parameter.getDomain() == null) {
             return new BufferedReader(new InputStreamReader(FileUtils.getInputStream(fileName), StandardCharsets.UTF_8));
@@ -110,7 +115,7 @@ public class SimpleSpellChecker implements SpellChecker {
 
     /**
      * The candidateList method takes a {@link Word} as an input and creates a candidates {@link ArrayList} by calling generateCandidateList
-     * method with given word. Then, it loops i times where i ranges from 0 to size of candidates {@link ArrayList} and creates a
+     * method with given word. Then, it loops i times, where i ranges from 0 to size of candidates {@link ArrayList} and creates a
      * {@link FsmParseList} by calling morphologicalAnalysis with each item of candidates {@link ArrayList}. If the size of
      * {@link FsmParseList} is 0, it then removes the ith item.
      *
