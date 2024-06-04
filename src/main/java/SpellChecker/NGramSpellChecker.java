@@ -99,6 +99,12 @@ public class NGramSpellChecker extends SimpleSpellChecker {
         return null;
     }
 
+    /**
+     * Returns the bi-gram probability P(word2 | word1) for the given bigram consisting of two words.
+     * @param word1 First word in bi-gram
+     * @param word2 Second word in bi-gram
+     * @return Bi-gram probability P(word2 | word1)
+     */
     private double getProbability(String word1, String word2) {
         return nGram.getProbability(word1, word2);
     }
